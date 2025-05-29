@@ -1,0 +1,182 @@
+export enum EAccountLogin {
+    EMAIL = 'email',
+    PASSWORD = 'password',
+};
+
+export enum EAccountData {
+    name = 'name',
+    nameLast = 'nameLast',
+    email = 'email',
+    username = 'username',
+    userType = 'userType',
+    userOccupation = 'userOccupation',
+    acceptedTerms = 'acceptedTerms'
+};
+
+export enum EFeedback {
+    feedbackText = 'feedbackText',
+    feedbackType = 'feedbackType',
+    feedbackEmail = 'feedbackEmail'
+};
+
+export enum EWork {
+    title = 'title',
+    alternateTitle = 'alternateTitle',
+    composers = 'composers',
+    publishers = 'publishers',
+    collections = 'collections',
+    videoEmbedCode = 'videoEmbedCode',
+    urlSpotify = 'urlSpotify',
+    urlAppleMusic = 'urlAppleMusic',
+    moods = 'moods',
+    styles = 'styles',
+    themes = 'themes',
+    elements = 'elements',
+    level = 'level',
+    studentAges = 'studentAges',
+    studentTypes = 'studentTypes',
+    teachingTips = 'teachingTips',
+    timeSignatures = 'timeSignatures',
+    keySignatures = 'keySignatures',
+    measureCount = 'measureCount',
+    instrumentations = 'instrumentations',
+    yearPublished = 'yearPublished',
+    eras = 'eras',
+    holidays = 'holidays',
+    hasLyrics = 'hasLyrics',
+    hasTeacherDuet = 'hasTeacherDuet',
+    description = 'description'
+};
+
+export enum EComposer {
+    name = 'name',
+    birth_year = 'birth_year',
+    death_year = 'death_year',
+    nationality = 'nationality',
+    ethnicity = 'ethnicity',
+    gender = 'gender',
+    pronouns = 'pronouns',
+    excerpt = 'excerpt',
+    works = 'works',
+    collections = 'collections',
+    urlSpotify = 'urlSpotify',
+    urlAppleMusic = 'urlAppleMusic',
+    urlWebsite = 'urlWebsite',
+    urlSocialInstagram = 'urlSocialInstagram',
+    urlSocialFacebook = 'urlSocialFacebook',
+    urlSocialX = 'urlSocialX',
+    urlSocialLinkedIn = 'urlSocialLinkedIn',
+    urlSocialYouTube = 'urlSocialYouTube'
+};
+
+export enum EPublisher {
+    name = 'name',
+    nationality = 'nationality',
+    excerpt = 'excerpt',
+    works = 'works',
+    collections = 'collections',
+    urlSpotify = 'urlSpotify',
+    urlAppleMusic = 'urlAppleMusic',
+    urlWebsite = 'urlWebsite',
+    urlSocialInstagram = 'urlSocialInstagram',
+    urlSocialFacebook = 'urlSocialFacebook',
+    urlSocialX = 'urlSocialX',
+    urlSocialLinkedIn = 'urlSocialLinkedIn',
+    urlSocialYouTube = 'urlSocialYouTube'
+};
+
+export enum ECollection {
+    title = 'title',
+    catalogue_number = 'catalogue_number',
+    composers = 'composers',
+    composed_date = 'composed_date',
+    publishers = 'publishers',
+    published_date = 'published_date',
+    adminNotes = 'adminNotes',
+    description = 'description',
+    isbn_10 = 'isbn_10',
+    isbn_13 = 'isbn_13',
+    videoYouTube = 'videoYouTube',
+    urlSpotify = 'urlSpotify',
+    urlAppleMusic = 'urlAppleMusic',
+    urlWebsite = 'urlWebsite',
+    works = 'works'
+};
+
+export const defaultWorkValues = {
+    [EWork.title]: '',
+    [EWork.alternateTitle]: '',
+    [EWork.composers]: [],
+    [EWork.publishers]: [],
+    [EWork.collections]: [],
+    [EWork.videoEmbedCode]: '',
+    [EWork.urlSpotify]: '',
+    [EWork.urlAppleMusic]: '',
+    [EWork.moods]: [],
+    [EWork.styles]: [],
+    [EWork.themes]: [],
+    [EWork.elements]: [],
+    [EWork.level]: '',
+    [EWork.studentAges]: [],
+    [EWork.studentTypes]: [],
+    [EWork.teachingTips]: [],
+    [EWork.timeSignatures]: [],
+    [EWork.keySignatures]: [],
+    [EWork.measureCount]: '',
+    [EWork.instrumentations]: '',
+    [EWork.yearPublished]: '',
+    [EWork.eras]: '',
+    [EWork.holidays]: [],
+    [EWork.hasLyrics]: '',
+    [EWork.hasTeacherDuet]: ''
+};
+
+export const defaultComposerValues = {
+    [EComposer.name]: '',
+    [EComposer.birth_year]: '',
+    [EComposer.death_year]: '',
+    [EComposer.nationality]: '',
+    [EComposer.excerpt]: '',
+    [EComposer.works]: [],
+    [EComposer.collections]: [],
+    [EComposer.urlSpotify]: '',
+    [EComposer.urlAppleMusic]: '',
+    [EComposer.urlWebsite]: '',
+    [EComposer.urlSocialInstagram]: '',
+    [EComposer.urlSocialFacebook]: '',
+    [EComposer.urlSocialX]: '',
+    [EComposer.urlSocialLinkedIn]: '',
+    [EComposer.urlSocialYouTube]: ''
+};
+
+export const defaultPublisherValues = {
+    [EPublisher.name]: '',
+    [EPublisher.nationality]: '',
+    [EPublisher.excerpt]: '',
+    [EPublisher.collections]: [],
+    [EPublisher.urlSpotify]: '',
+    [EPublisher.urlAppleMusic]: '',
+    [EPublisher.urlWebsite]: '',
+    [EPublisher.urlSocialInstagram]: '',
+    [EPublisher.urlSocialFacebook]: '',
+    [EPublisher.urlSocialX]: '',
+    [EPublisher.urlSocialLinkedIn]: '',
+    [EPublisher.urlSocialYouTube]: ''
+};
+
+export const defaultCollectionValues = {
+    [ECollection.title]: '',
+    [ECollection.catalogue_number]: '',
+    [ECollection.composed_date]: '',
+    [ECollection.published_date]: '',
+    [ECollection.description]: '',
+    [ECollection.isbn_10]: '',
+    [ECollection.isbn_13]: '',
+    [ECollection.videoYouTube]: '',
+    [ECollection.urlSpotify]: '',
+    [ECollection.urlAppleMusic]: '',
+    [ECollection.urlWebsite]: '',
+    [ECollection.composers]: [],
+    [ECollection.publishers]: [],
+    [ECollection.works]: []
+};

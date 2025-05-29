@@ -1,0 +1,444 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply mx-0;
+  }
+  h1 {
+    @apply text-4xl sm:text-5xl;
+  }
+  h2 {
+    @apply text-3xl sm:text-4xl;
+  }
+  h3 {
+    @apply text-2xl sm:text-3xl;
+  }
+  h4 {
+    @apply text-xl sm:text-2xl;
+  }
+  h5 {
+    @apply text-lg sm:text-xl;
+  }
+  h6 {
+    @apply text-lg;
+  }
+}
+
+/* Set Border-Box Sizing for all elements by default */
+* {
+  @apply box-border;
+}
+
+/* For the base HTML and body tags: set padding/margin, font, etc */
+html,
+body {
+  @apply m-0 p-0 tracking-[0.2px] scroll-smooth;
+  font-family: "Montserrat Variable", sans-serif;
+}
+
+/* Adjust scroll-padding-top so the header doesn't cover the #linked content */
+html {
+  @apply scroll-pt-[120px];
+}
+
+/* Change selection background */
+::selection {
+  @apply bg-pmdRed !text-white;
+  text-shadow: none;
+}
+
+/* Link Tags */
+a {
+  @apply text-red-900 hover:text-stone-400 focus:text-neutral-800 underline focus:underline hover:no-underline transition-all duration-150 ease-in-out;
+  font-family: "Montserrat Variable", sans-serif;
+}
+
+/* Button - Standard Red */
+.button {
+  @apply bg-red-900 hover:bg-stone-400 focus:bg-stone-200 px-8 py-4 rounded-lg font-bold text-white hover:text-white focus:text-neutral-800 no-underline hover:no-underline focus:no-underline leading-10 transition-all duration-150 ease-in-out;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1))
+    drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));
+    font-family: "Montserrat Variable", sans-serif;
+}
+
+/* Button - White */
+.buttonwhite {
+  @apply bg-white hover:bg-stone-400 focus:bg-stone-200 px-8 py-4 rounded-lg font-bold text-neutral-800 hover:text-neutral-800 focus:text-neutral-800 no-underline hover:no-underline focus:no-underline leading-10 transition-all duration-150 ease-in-out;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1))
+    drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));
+    font-family: "Montserrat Variable", sans-serif;
+}
+
+/* Picture/Image */
+img {
+  @apply flex justify-center items-center overflow-hidden text-pmdGrayLight text-center align-middle;
+  max-width: 100%;
+  height: auto;
+}
+.picture {
+  @apply inline-block p-2 rounded-lg;
+}
+
+/* HR/Dividing Lines */
+hr {
+  @apply my-2;
+}
+
+/* Lists */
+li {
+  @apply m-0 p-0;
+}
+ul {
+  @apply list-disc list-inside;
+}
+ol {
+  @apply list-decimal list-inside;
+  counter-reset: item;
+}
+ul ul,
+ol ul {
+  @apply ml-4 list-[circle] list-inside;
+}
+ol ol,
+ul ol {
+  @apply ml-4 list-[lower-latin] list-inside;
+}
+li > p,
+li > h1,
+li > h2,
+li > h3,
+li > h4,
+li > h5,
+li > h6 {
+  @apply inline-block;
+}
+ol > li {
+  counter-increment: item;
+}
+ol ol > li {
+  @apply block;
+}
+ol ol > li:before {
+  @apply content-[counters(item,'.')_'_'];
+}
+
+/* Pagination */
+.active {
+  @apply text-stone-50;
+}
+.activePaginationSvg path {
+  @apply fill-red-900;
+}
+.inactivePaginationSvg path {
+  @apply fill-stone-400;
+}
+
+/* Scrollbar for inner content like a tooltip modal */
+.scrollbar::-webkit-scrollbar {
+  @apply w-1.5 h-1.5;
+}
+.scrollbar::-webkit-scrollbar-track {
+  @apply rounded-[3px];
+  background: rgba(231, 229, 228, 0.3);
+}
+.scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-stone-200 rounded-[3px];
+}
+.scrollbar-hide::-webkit-scrollbar {
+  @apply hidden;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Work Nav Highlight Color Fix */
+.navLinkNoHighLight {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom Banner for Use in Pages */
+.banner {
+  @apply bg-black bg-cover p-8 text-white text-center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+}
+
+/* Custom FAQ for Use in Pages */
+.faqs {
+  @apply flex flex-col justify-center gap-x-2 gap-y-14 mx-auto mt-0 mb-8 max-w-[600px];
+}
+.faq {
+  @apply flex gap-6;
+  justify-content: left;
+}
+.faq h2,
+.faq h3,
+.faq h4,
+.faq h5 {
+  @apply min-w-[260px] max-w-[260px];
+}
+.faq p {
+  @apply min-w-[310px] max-w-[310px];
+}
+@media only all and (max-width: 640px) {
+  .faqs {
+    @apply max-w-full;
+  }
+  .faq {
+    @apply flex-col gap-4;
+  }
+  .faq h2,
+  .faq h3,
+  .faq h4,
+  .faq h5 {
+    @apply min-w-[auto] max-w-full;
+  }
+  .faq p {
+    @apply min-w-[auto] max-w-full;
+  }
+}
+
+/* Custom Cards for Use in Pages */
+.cards {
+  @apply flex flex-wrap justify-center items-start gap-4;
+}
+.card {
+  @apply flex flex-col gap-4 bg-stone-50 p-4 rounded-2xl max-w-[333px] grow;
+}
+.cardfullwidth {
+  @apply flex flex-col gap-4 bg-stone-50 p-4 rounded-2xl grow;
+}
+
+/* Custom Centering Style for Use in Pages */
+.center {
+  @apply flex justify-center text-center;
+}
+
+/* Custom Centering Style for Use in Pages */
+.heading {
+  @apply text-xl sm:text-2xl;
+}
+
+/* Custom Break-All for Long Words on Small Displays */
+.breakall {
+  @apply break-normal;
+}
+@media only all and (max-width: 640px) {
+  .breakall {
+    @apply break-all;
+  }
+}
+
+.table-works {
+    @apply shadow-lg rounded-lg w-full overflow-hidden text-left border-collapse table-fixed;
+}
+
+.table-works thead {
+    @apply bg-black w-full text-white;
+}
+
+.table-works th, .table-works td {
+    @apply p-2 border border-slate-600 w-full h-full;
+}
+
+/* Masking */
+.mask-to-t {
+  mask: 
+  linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 50%, transparent 100%);
+}
+
+/* Custom Animation for Coloring Words */
+.animate-text {
+  background-image: linear-gradient(
+    -25deg,
+    #0b4242 0%,
+    #ad3e2f 29%,
+    #7F1D1D 67%,
+    #ad457e 100%
+  );
+  background-size: auto auto;
+  background-clip: border-box;
+  background-size: 200% auto;
+  color: #fff;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-clip 2s linear infinite;
+  display: inline-block;
+}
+
+@keyframes text-clip {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Custom Animation for Fading Between Words */
+.animated-words {
+  position: relative;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  margin-top: 12px;
+}
+
+@media (min-width: 874px) {
+  .animated-words {
+    text-align: left;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+}
+
+.animated-words div {
+  position: absolute;
+  height: 60px;
+  font-weight: bolder;
+}
+
+.word1 {
+  animation-name: fadeWord1;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-duration: 12s;
+  animation-direction: alternate;
+  transition-timing-function: cubic-bezier(1, -0.8, 1, -0.8);
+}
+
+.word2 {
+  animation-name: fadeWord2;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-duration: 12s;
+  animation-direction: alternate;
+  transition-timing-function: cubic-bezier(1, -0.8, 1, -0.8);
+}
+
+.word3 {
+  animation-name: fadeWord3;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-duration: 12s;
+  animation-direction: alternate;
+  transition-timing-function: cubic-bezier(1, -0.8, 1, -0.8);
+}
+
+.word4 {
+  animation-name: fadeWord4;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-duration: 12s;
+  animation-direction: alternate;
+  transition-timing-function: cubic-bezier(1, -0.8, 1, -0.8);
+}
+
+.word5 {
+  animation-name: fadeWord5;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-duration: 12s;
+  animation-direction: alternate;
+  transition-timing-function: cubic-bezier(1, -0.8, 1, -0.8);
+}
+
+@keyframes fadeWord1 {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeWord2 {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeWord3 {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeWord4 {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeWord5 {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
