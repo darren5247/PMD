@@ -25,4 +25,7 @@ export type SubscriptionTemplateNames =
   | 'subscriptionEnd'
   | 'subscriptionUpdate'
   | 'subscriptionRenewed'
+  | 'subscriptionUpgrade'
+  | 'subscriptionDowngrade'
+  | 'subscriptionManualRenewal'
   | 'paymentMethodUpdate';

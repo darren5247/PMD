@@ -6,9 +6,7 @@ export default {
   // Create checkout session
   async createCheckoutSession(ctx) {
     const { priceId } = ctx.request.body;
-    console.log("priceID", priceId);
     const user = ctx.state.user; // Get authenticated user
-    console.log("user", user);
 
     try {
       // Get or create Stripe customer
@@ -30,7 +28,6 @@ export default {
         });
 
         customer = newCustomer.id;
-        console.log("customer", customer);
       }
 
       // Create checkout session
@@ -77,7 +74,9 @@ export default {
         case 'customer.subscription.created':
           await handleSubscriptionCreated(event.data.object);
           // Send subscription start email
-          await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionStart');
+          if (event.data.object.status === 'active' || event.data.object.status === 'trialing') {
+            await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionStart');
+          }
           break;
 
         case 'customer.subscription.updated':
@@ -89,15 +88,29 @@ export default {
           } else if (event.data.previous_attributes?.cancel_at_period_end === true) {
             await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionRenewed');
           }
+          // Handle plan changes (upgrade/downgrade)
+          const previousAttributes = event.data.previous_attributes;
+          if (previousAttributes?.items) {
+            const currentInterval = event.data.object.items.data[0].price.recurring?.interval;
+            const previousInterval = previousAttributes.items.data?.[0]?.price?.recurring?.interval;
+
+            if (previousInterval && currentInterval && previousInterval !== currentInterval) {
+              if (previousInterval === 'month' && currentInterval === 'year') {
+                await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionUpgrade');
+              } else if (previousInterval === 'year' && currentInterval === 'month') {
+                await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionDowngrade');
+              }
+            }
+          }
           break;
 
         case 'customer.subscription.deleted':
           // Send subscription end email
           await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionEnd');
-          
+
           // Update user subscription status
           await handleSubscriptionDeleted(event.data.object);
-          
+
           break;
 
         case 'invoice.paid':
@@ -113,11 +126,17 @@ export default {
                 await stripeService.processSubscriptionEmail(subscription, 'subscriptionRenew');
               }
             }
-            
+
             // Subscription plan change
             if (invoice.billing_reason === 'subscription_update') {
               await handleSubscriptionUpdated(subscription);
-              await stripeService.processSubscriptionEmail(subscription, 'subscriptionUpdate');
+              // await stripeService.processSubscriptionEmail(subscription, 'subscriptionUpdate');
+            }
+
+            // Manual renewal
+            if (invoice.billing_reason === 'manual') {
+              await handleSubscriptionUpdated(subscription);
+              await stripeService.processSubscriptionEmail(subscription, 'subscriptionManualRenewal');
             }
           }
           break;

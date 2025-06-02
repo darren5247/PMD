@@ -85,6 +85,30 @@ export const subscriptionTemplates: Record<string, EmailTemplate> = {
     `,
     text: 'Your payment method has been updated.\nCard: {{brand}} ending in {{last4}}\nExpiry: {{expiryDate}}'
   },
+  subscriptionUpgrade: {
+    subject: 'Your Piano Music Database Subscription Has Been Upgraded',
+    html: `
+      <h3>Subscription Upgraded Successfully</h3>
+      <p>Your subscription has been upgraded to a yearly plan.</p>
+      <p>New Plan: {{planName}}</p>
+      <p>Amount: {{currency}} {{amount}}</p>
+      <p>Next Billing Date: {{nextBillingDate}}</p>
+      <p>Thank you for upgrading! You're now enjoying better value with our yearly subscription.</p>
+    `,
+    text: 'Your subscription has been upgraded to a yearly plan.\nNew Plan: {{planName}}\nAmount: {{currency}} {{amount}}\nNext Billing Date: {{nextBillingDate}}\nThank you for upgrading! You\'re now enjoying better value with our yearly subscription.'
+  },
+  subscriptionDowngrade: {
+    subject: 'Your Piano Music Database Subscription Has Been Downgrade',
+    html: `
+      <h3>Subscription Plan owngrade</h3>
+      <p>Your subscription has been downgrade to a monthly plan.</p>
+      <p>New Plan: {{planName}}</p>
+      <p>Amount: {{currency}} {{amount}}</p>
+      <p>Next Billing Date: {{nextBillingDate}}</p>
+      <p>Your subscription continues with monthly billing.</p>
+    `,
+    text: 'Your subscription has been changed to a monthly plan.\nNew Plan: {{planName}}\nAmount: {{currency}} {{amount}}\nNext Billing Date: {{nextBillingDate}}\nYour subscription continues with monthly billing.'
+  },
   subscriptionUpdate: {
     subject: 'Your Piano Music Database Subscription Has Been Updated',
     html: `
@@ -97,6 +121,18 @@ export const subscriptionTemplates: Record<string, EmailTemplate> = {
     `,
     text: 'Your subscription has been successfully updated.\nNew Plan: {{planName}}\nAmount: {{currency}} {{amount}}\nNext Billing Date: {{nextBillingDate}}\nThank you for being a valued member of Piano Music Database!'
   },
+  subscriptionManualRenewal: {
+    subject: 'Your Piano Music Database Subscription Has Been Manually Renewed',
+    html: `
+      <h3>Subscription Manually Renewed</h3>
+      <p>You have successfully renewed your subscription manually.</p>
+      <p>Plan: {{planName}}</p>
+      <p>Amount: {{currency}} {{amount}}</p>
+      <p>Next Billing Date: {{nextBillingDate}}</p>
+      <p>Thank you for your continued subscription to Piano Music Database!</p>
+    `,
+    text: 'You have successfully renewed your subscription manually.\nPlan: {{planName}}\nAmount: {{currency}} {{amount}}\nNext Billing Date: {{nextBillingDate}}\nThank you for your continued subscription to Piano Music Database!'
+  },
   subscriptionRenewed: {
     subject: 'Your Piano Music Database Subscription Has Been Renewed',
     html: `
@@ -108,5 +144,5 @@ export const subscriptionTemplates: Record<string, EmailTemplate> = {
       <p>We're glad to have you continue as a valued member of Piano Music Database!</p>
     `,
     text: 'Thank you for renewing your subscription!\nPlan: {{planName}}\nAmount: {{currency}} {{amount}}\nNext Billing Date: {{nextBillingDate}}\nWe\'re glad to have you continue as a valued member of Piano Music Database!'
-  }
+  },
 }; 

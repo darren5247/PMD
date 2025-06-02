@@ -26,8 +26,8 @@ export default () => ({
             const subscriptions = await stripe.subscriptions.list({
                 status: 'active',
                 current_period_end: {
-                  gte: twoWeeksFromNow - 24 * 60 * 60,
-                  lte: twoWeeksFromNow + 24 * 60 * 60
+                    gte: twoWeeksFromNow - 24 * 60 * 60,
+                    lte: twoWeeksFromNow + 24 * 60 * 60
                 }
             });
 
@@ -105,9 +105,24 @@ export default () => ({
                     };
                     break;
 
-                case 'subscriptionUpdate':
+                case 'subscriptionUpgrade':
                     emailData = {
                         ...emailData,
+                        nextBillingDate: new Date(data.current_period_end * 1000).toLocaleDateString()
+                    };
+                    break;
+
+                case 'subscriptionDowngrade':
+                    emailData = {
+                        ...emailData,
+                        nextBillingDate: new Date(data.current_period_end * 1000).toLocaleDateString()
+                    };
+                    break;
+
+                case 'subscriptionManualRenewal':
+                    emailData = {
+                        ...emailData,
+                        renewalDate: new Date(data.current_period_start * 1000).toLocaleDateString(),
                         nextBillingDate: new Date(data.current_period_end * 1000).toLocaleDateString()
                     };
                     break;
@@ -138,10 +153,10 @@ export default () => ({
 
                 case 'subscriptionRenewalFailed':
                     const latestInvoice = await stripe.invoices.retrieve(data.latest_invoice as string);
-                    const nextPaymentAttempt = latestInvoice ? 
-                        new Date(latestInvoice.next_payment_attempt * 1000) : 
+                    const nextPaymentAttempt = latestInvoice ?
+                        new Date(latestInvoice.next_payment_attempt * 1000) :
                         null;
-                    
+
                     let failureReason = 'Payment failed';
                     if (latestInvoice.payment_intent) {
                         const paymentIntent = await stripe.paymentIntents.retrieve(latestInvoice.payment_intent as string);
@@ -165,7 +180,7 @@ export default () => ({
                             }
                         }
                     }
-                    
+
                     emailData = {
                         ...emailData,
                         nextAttemptDate: nextPaymentAttempt ? nextPaymentAttempt.toLocaleDateString() : undefined,
