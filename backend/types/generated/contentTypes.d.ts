@@ -714,7 +714,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::favorite.favorite'
     >;
-    firstLogIn: Attribute.Boolean & Attribute.DefaultTo<false>;
     lists_owned: Attribute.Relation<
       'plugin::users-permissions.user',
       'manyToMany',
@@ -722,6 +721,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     >;
     otpCode: Attribute.String;
     otpExpiresAt: Attribute.DateTime;
+    logInFirstTime: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

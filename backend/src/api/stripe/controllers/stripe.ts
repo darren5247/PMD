@@ -74,8 +74,11 @@ export default {
         case 'customer.subscription.created':
           await handleSubscriptionCreated(event.data.object);
           // Send subscription start email
-          if (event.data.object.status === 'active' || event.data.object.status === 'trialing') {
-            await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionStart');
+          if (event.data.object.latest_invoice) {
+            const latestInvoice = await stripe.invoices.retrieve(event.data.object.latest_invoice as string);
+            if (latestInvoice.status === 'paid') {
+              await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionStart');
+            }
           }
           break;
 
@@ -88,20 +91,7 @@ export default {
           } else if (event.data.previous_attributes?.cancel_at_period_end === true) {
             await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionRenewed');
           }
-          // Handle plan changes (upgrade/downgrade)
-          const previousAttributes = event.data.previous_attributes;
-          if (previousAttributes?.items) {
-            const currentInterval = event.data.object.items.data[0].price.recurring?.interval;
-            const previousInterval = previousAttributes.items.data?.[0]?.price?.recurring?.interval;
 
-            if (previousInterval && currentInterval && previousInterval !== currentInterval) {
-              if (previousInterval === 'month' && currentInterval === 'year') {
-                await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionUpgrade');
-              } else if (previousInterval === 'year' && currentInterval === 'month') {
-                await stripeService.processSubscriptionEmail(event.data.object, 'subscriptionDowngrade');
-              }
-            }
-          }
           break;
 
         case 'customer.subscription.deleted':
@@ -130,7 +120,36 @@ export default {
             // Subscription plan change
             if (invoice.billing_reason === 'subscription_update') {
               await handleSubscriptionUpdated(subscription);
-              // await stripeService.processSubscriptionEmail(subscription, 'subscriptionUpdate');
+
+              // Check for plan changes by analyzing invoice line items
+              const lineItems = invoice.lines.data;
+              let upgradeOrDowngrade = null;
+
+              if (lineItems.length >= 2) {
+                // Find the negative (old plan) and positive (new plan) proration items
+                const oldPlanItem = lineItems.find(item => item.amount < 0);
+                const newPlanItem = lineItems.find(item => item.amount > 0);
+
+                if (oldPlanItem && newPlanItem && oldPlanItem.price && newPlanItem.price) {
+                  const oldInterval = oldPlanItem.price.recurring?.interval;
+                  const newInterval = newPlanItem.price.recurring?.interval;
+
+                  if (oldInterval && newInterval && oldInterval !== newInterval) {
+                    if (oldInterval === 'month' && newInterval === 'year') {
+                      upgradeOrDowngrade = 'upgrade';
+                    } else if (oldInterval === 'year' && newInterval === 'month') {
+                      upgradeOrDowngrade = 'downgrade';
+                    }
+                  }
+                }
+              }
+
+              // Send appropriate email
+              if (upgradeOrDowngrade === 'upgrade') {
+                await stripeService.processSubscriptionEmail(subscription, 'subscriptionUpgrade');
+              } else if (upgradeOrDowngrade === 'downgrade') {
+                await stripeService.processSubscriptionEmail(subscription, 'subscriptionDowngrade');
+              }
             }
 
             // Manual renewal
@@ -143,7 +162,7 @@ export default {
 
         case 'invoice.payment_failed':
           const failedInvoice = event.data.object;
-          
+
           if (failedInvoice.subscription) {
             const subscription = await stripe.subscriptions.retrieve(failedInvoice.subscription as string);
             await stripeService.processSubscriptionEmail(subscription, 'subscriptionRenewalFailed');
@@ -184,12 +203,6 @@ export default {
               limit: 1
             });
 
-            if (subscriptions.data.length > 0) {
-              await stripeService.processSubscriptionEmail({
-                ...paymentMethod,
-                plan: subscriptions.data[0].items.data[0].price
-              }, 'paymentMethodUpdate');
-            }
           }
           break;
 
@@ -202,12 +215,6 @@ export default {
             limit: 1
           });
 
-          if (subscriptionsAttached.data.length > 0) {
-            await stripeService.processSubscriptionEmail({
-              ...paymentMethodAttached,
-              plan: subscriptionsAttached.data[0].items.data[0].price
-            }, 'paymentMethodUpdate');
-          }
           break;
       }
 

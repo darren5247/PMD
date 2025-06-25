@@ -205,10 +205,6 @@
       "target": "api::favorite.favorite",
       "mappedBy": "user"
     },
-    "firstLogIn": {
-      "type": "boolean",
-      "default": false
-    },
     "lists_owned": {
       "type": "relation",
       "relation": "manyToMany",
@@ -220,6 +216,9 @@
     },
     "otpExpiresAt": {
       "type": "datetime"
+    },
+    "logInFirstTime": {
+      "type": "string"
     }
   }
 }

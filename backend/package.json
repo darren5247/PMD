@@ -1,7 +1,7 @@
 {
   "name": "pmdCMS",
   "private": true,
-  "version": "1.9.0",
+  "version": "1.11.3",
   "scripts": {
     "develop": "strapi develop",
     "start": "strapi start",
