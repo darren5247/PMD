@@ -1,79 +1,245 @@
 import { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
-import Page from '@src/components/Page';
 import cn from 'classnames';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import Page from '@src/components/Page';
+import { useMediaQuery } from '@src/common/hooks';
+import { EUrlsPages, CFilterKeys, CItemKeys } from '@src/constants';
+import SearchFiltersItem from '@src/components/SearchFiltersItem';
+import SearchResultsItem from '@src/components/SearchResultsItem';
+import { TUserAttributes } from '@src/types';
 import Link from 'next/link';
-import CardPublisher from '@src/components/CardPublisher';
-import { AppContext } from '@src/state';
-import api from '@src/api/config';
-import {
-  ENotificationActionTypes,
-  ENotificationTypes,
-  IStrapiPublisher
-} from '@src/types';
-import { EUrlsPages } from '@src/constants';
+import Chip from '@src/components/Chip';
 
 interface IPublishersPageProps {
-  prevUrl: string | undefined;
+  prevUrl?: string | undefined;
 };
 
 const PublishersPage: NextPage<IPublishersPageProps> = ({ prevUrl }) => {
   const router = useRouter();
   const { query } = router;
-  const [publishers, setPublishers] = useState<IStrapiPublisher[]>([]);
+  const publishersBreakpoint = CItemKeys.find(item => item.value === 'publishers')?.pageBreakpoint || '100000px';
+  const isBreakpoint = useMediaQuery(`(min-width: ${publishersBreakpoint})`);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [pageTitleClean, setPageTitleClean] = useState<string | null>(null);
+  const [pageDescClean, setPageDescClean] = useState<string | null>(null);
+  const [isFiltering, setFiltering] = useState<boolean>(true);
+
   const [currentPage, setCurrentPage] = useState(Number(query.page) && Number(query.page) > 0 ? Number(query.page) : 1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoadingPublishers, setIsLoadingPublishers] = useState(false);
+  const [pageSize, setPageSize] = useState(Number(query.pageSize) && Number(query.pageSize) > 1 ? Number(query.pageSize) : 10);
 
-  const { dispatch } = useContext(AppContext);
+  const [textQuery, setTextQuery] = useState<string | null>(null);
 
-  useEffect(
-    () => {
-      // Get/Set Queries on Page Load (Doing these will update the filters with the current queries)
-      const { page } = query;
+  const [eraFilter, setEraFilter] = useState<string | null>(null);
 
-      // Page
-      if (page) setCurrentPage(Number(page as string));
+  useEffect(() => {
+    // Check for all the OLD filters and replace them with the NEW versions if they exist
+    const updatedQuery = { ...query };
 
-      const getPublishers = async () => {
-        try {
-          setIsLoadingPublishers(true);
-          const fetchedData = [];
-          const { data } = await api.get(
-            `publishers?pagination[page]=${currentPage}&pagination[pageSize]=10&sort[0]=name:asc&fields[0]=name&fields[1]=nationality&populate[image][fields][2]=height&populate[image][fields][3]=width&populate[image][fields][4]=url&populate[image][fields][5]=alternativeText&populate[works][fields][6]=title&filters[publishedAt][$null]=false&publicationState=live`
-          );
-          fetchedData.push(...data?.data);
-
-          // Redirect to last page if current page is greater than total pages
-          if (data?.meta?.pagination?.pageCount < currentPage && data?.meta?.pagination?.pageCount > 0) {
-            setCurrentPage(data.meta.pagination.pageCount && data.meta.pagination.pageCount > 0 ? data.meta.pagination.pageCount : 1);
-            router.push({
-              pathname: router.pathname,
-              query: { ...router.query, page: data.meta.pagination.pageCount }
-            });
+    // Loop through the CFilterKeys and update the query object
+    // Check if the old key exists in the query object and update it to the new key
+    CFilterKeys
+      .filter(({ itemType }) => itemType === 'publishers')
+      .forEach(({ filterOptions }) => {
+        filterOptions.forEach(({ oldKey, prefix, newKey }) => {
+          if (oldKey === 'query') {
+            const oldTypesenseFilter = `${prefix}[${oldKey}]`;
+            if (query[oldTypesenseFilter]) {
+              updatedQuery[newKey] = query[oldTypesenseFilter];
+              delete updatedQuery[oldTypesenseFilter];
+            }
           } else {
-            setPublishers(fetchedData);
-            setTotalPages(data?.meta?.pagination?.pageCount || 1);
-          }
-        } catch (error: any) {
-          if (error?.response?.data) {
-            dispatch({
-              type: ENotificationActionTypes.SET_MESSAGE,
-              payload: {
-                message: error?.response?.data.error?.message,
-                type: ENotificationTypes.ERROR
+            for (let i = 0; i <= 8; i++) {
+              const oldTypesenseFilterWithNumbers = `${prefix}[${oldKey}][${i}]`;
+              if (query[oldTypesenseFilterWithNumbers]) {
+                updatedQuery[newKey] = query[oldTypesenseFilterWithNumbers];
+                delete updatedQuery[oldTypesenseFilterWithNumbers];
               }
-            });
-          };
-        } finally {
-          setIsLoadingPublishers(false);
-        }
-      };
+            }
+          }
+        });
+      });
 
-      getPublishers();
-    }, [dispatch, router, currentPage, query, setPublishers, setIsLoadingPublishers]
-  );
+    // Check if the updated query is different from the current query
+    // If they are different, update the URL with the new query parameters
+    if (JSON.stringify(updatedQuery) !== JSON.stringify(query)) {
+      router.push(
+        {
+          pathname: router.pathname,
+          query: updatedQuery,
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [query, router]);
+
+  useEffect(() => {
+    const accountData: TUserAttributes = JSON.parse(localStorage.getItem('accountData') || '{}');
+    if (accountData.id) {
+      setUserId(accountData.id);
+    };
+
+    // Set Filters based on the query params on page load (if any)
+    const setFilter = (queryKey: string, fallbackKey: string | null) => {
+      const filterValue = query[queryKey] || fallbackKey;
+      if (filterValue) {
+        // Set the filter value based on the filter type
+        switch (queryKey) {
+          case 'q':
+            setTextQuery(filterValue as string);
+            break;
+          case 'era':
+            setEraFilter(filterValue as string);
+            break;
+          default:
+            break;
+        }
+      }
+    };
+
+    // Check for the NEW filters - overwrites the old filters
+    CFilterKeys.forEach((filterKey) => {
+      filterKey.filterOptions.forEach(({ newKey }) => {
+        setFilter(newKey, query[newKey] as string);
+      });
+    });
+
+    // Get/Set Page-Based Queries on Page Load
+    const { page, pageSize, size, count } = query;
+    // Set Page
+    if (page) setCurrentPage(Number(page as string));
+    // Set Page Size
+    if (pageSize) setPageSize(Number(pageSize as string));
+    if (size) setPageSize(Number(size as string));
+    if (count) setPageSize(Number(count as string));
+  }, [query, currentPage, pageSize, textQuery]);
+
+  useEffect(() => {
+    function pageTitle() {
+      if (
+        (textQuery && textQuery !== '') ||
+        (eraFilter && eraFilter !== '')
+      ) {
+        const filtersArray = [
+          eraFilter && (Array.isArray(eraFilter)
+            ? `the ${eraFilter.join(' and ')} eras`
+            : `the ${eraFilter} era`),
+        ].filter(Boolean);
+
+        const filters = filtersArray.length === 2
+          ? filtersArray.join(' and ')
+          : filtersArray.join(', ');
+
+        setFiltering(true);
+
+        setPageTitleClean(`Search for ${textQuery ? `${textQuery} ` : ''}Publishers${(eraFilter && eraFilter !== '') ? ` from ${decodeURIComponent(filters)}` : ''} on Piano Music Database`);
+      } else {
+        setFiltering(false);
+
+        setPageTitleClean('Search for Publishers on Piano Music Database');
+      }
+    };
+
+    function pageDesc() {
+      if (
+        (textQuery && textQuery !== '') ||
+        (eraFilter && eraFilter !== '')
+      ) {
+        const filtersArray = [
+          eraFilter && (Array.isArray(eraFilter)
+            ? `the ${eraFilter.join(' and ')} eras`
+            : `the ${eraFilter} era`),
+        ].filter(Boolean);
+
+        const filters = filtersArray.length === 2
+          ? filtersArray.join(' and ')
+          : filtersArray.join(', ');
+
+        setFiltering(true);
+
+        setPageDescClean(`Search for ${textQuery ? `${textQuery} ` : ''}Publishers${(eraFilter && eraFilter !== '') ? `from ${decodeURIComponent(filters)}` : ''} on Piano Music Database. Piano Music Database is a search engine and database of pedagogical repertoire (level, publisher, mood, style, and more) built for piano teachers. Find the perfect piece on PianoMusicDatabase.com.`);
+      } else {
+        setFiltering(false);
+
+        setPageDescClean('Search for Publishers on Piano Music Database. Piano Music Database is a search engine and database of pedagogical repertoire (level, publisher, mood, style, and more) built for piano teachers. Find the perfect piece on PianoMusicDatabase.com.');
+      }
+    };
+
+    pageTitle()
+    pageDesc();
+  }, [textQuery, eraFilter]);
+
+  function pageTitle() {
+    if (
+      (textQuery && textQuery !== '') ||
+      (eraFilter && eraFilter !== '')
+    ) {
+      const filtersArray = [
+        eraFilter && (Array.isArray(eraFilter)
+          ? `the ${eraFilter.join(' and ')} eras`
+          : `the ${eraFilter} era`),
+      ].filter(Boolean);
+
+      const filters = filtersArray.length === 2
+        ? filtersArray.join(' and ')
+        : filtersArray.join(', ');
+
+      setFiltering(true);
+
+      setPageTitleClean(`Search for ${textQuery ? `${textQuery} ` : ''}Publishers${(eraFilter && eraFilter !== '') ? `from ${decodeURIComponent(filters)}` : ''} on Piano Music Database`);
+    } else {
+      setFiltering(false);
+
+      setPageTitleClean('Search for Publishers on Piano Music Database');
+    }
+  };
+
+  function pageDesc() {
+    if (
+      (textQuery && textQuery !== '') ||
+      (eraFilter && eraFilter !== '')
+    ) {
+      const filtersArray = [
+        eraFilter && (Array.isArray(eraFilter)
+          ? `the ${eraFilter.join(' and ')} eras`
+          : `the ${eraFilter} era`),
+      ].filter(Boolean);
+
+      const filters = filtersArray.length === 2
+        ? filtersArray.join(' and ')
+        : filtersArray.join(', ');
+
+      setFiltering(true);
+
+      setPageDescClean(`Search for ${textQuery ? `${textQuery} ` : ''}Publishers${(eraFilter && eraFilter !== '') ? `from ${decodeURIComponent(filters)}` : ''} on Piano Music Database. Piano Music Database is a search engine and database of pedagogical repertoire (level, publisher, mood, style, and more) built for piano teachers. Find the perfect piece on PianoMusicDatabase.com.`);
+    } else {
+      setFiltering(false);
+
+      setPageDescClean('Search for Publishers on Piano Music Database. Piano Music Database is a search engine and database of pedagogical repertoire (level, publisher, mood, style, and more) built for piano teachers. Find the perfect piece on PianoMusicDatabase.com.');
+    }
+  };
+
+  const checkFiltering = (filterName?: string) => {
+    if (filterName && filterName !== '') {
+      switch (filterName) {
+        case 'q':
+          setTextQuery(null);
+          break;
+        case 'era':
+          setEraFilter(null);
+          break;
+      }
+      pageTitle();
+      pageDesc();
+    } else {
+      // Reset all filters
+      setTextQuery(null);
+      setEraFilter(null);
+      pageTitle();
+      pageDesc();
+    }
+  };
 
   return (
     <Page
@@ -82,107 +248,91 @@ const PublishersPage: NextPage<IPublishersPageProps> = ({ prevUrl }) => {
       showBackBarFeedback={true}
       prevUrl={prevUrl}
       url={EUrlsPages.PUBLISHERS}
-      title='Publishers - Piano Music Database'
-      description='Explore publishers on Piano Music Database. Buy their sheet music, find the perfect works that make up their repertoire, and discover other details about your favorite publishers.'
+      title={pageTitleClean ? pageTitleClean : 'Publishers - Piano Music Database'}
+      description={pageDescClean ? pageDescClean : 'Explore publishers on Piano Music Database. Buy their sheet music, find the perfect works that make up their repertoire, and discover other details about your favorite publishers.'}
       image=''
+      className='!mx-0 !px-0 !max-w-full'
+      classNameMain='!max-w-full !mx-0 !px-0'
     >
       <div className='flex flex-col justify-center items-center text-center'>
-        <h1>Publishers</h1>
-        <p className='mt-3 max-w-[800px]'>Explore publishers on Piano Music Database.</p>
-        <div id='publishers' className='flex flex-col flex-wrap justify-center items-center mt-8'>
-          {isLoadingPublishers ? (
-            <p>Loading publishers...</p>
-          ) : (
-            (publishers ? (
-              <div className='flex flex-col justify-center items-stretch gap-4 text-center align-middle'>
-                {publishers.map((publisher) => (
-                  <CardPublisher
-                    key={`PublisherItem-${publisher.id}`}
-                    nationality={publisher.attributes.nationality}
-                    name={publisher.attributes.name}
-                    works={publisher.attributes.works.data}
-                    imageURL={publisher.attributes.image?.data?.attributes.url}
-                    id={publisher.id}
-                    hideLabel={true}
-                  />
-                ))}
-              </div>
-            ) : '')
-          )}
-          <div className='flex justify-center items-center gap-3 min-[340px]:gap-5 mt-6 mb-3 text-sm'>
-            <Link
-              href={(
-                EUrlsPages.PUBLISHERS +
-                '?page=1'
+        <h1 className='mx-3'>Publishers</h1>
+        <p className='mx-3 mt-3 max-w-[778px] text-justify'>Explore publishers on Piano Music Database. Buy their sheet music, find the perfect works that make up their repertoire, and discover other details about your favorite publishers.</p>
+        {userId ? (
+          <div
+            id='search'
+            className={cn(
+              'flex justify-center gap-x-3 gap-y-6 mx-auto mt-6',
+              isBreakpoint ? 'flex-row items-start' : 'flex-col items-stretch'
+            )}
+          >
+            <SearchFiltersItem itemType='publishers' className='flex' onReset={(filterName?: string) => checkFiltering(filterName)} mobileBreakpoint={publishersBreakpoint} itemTypeTitleOrName='name' />
+            <div
+              id='searchResults'
+              className={cn(
+                'flex flex-col justify-center items-stretch gap-6',
+                isBreakpoint ? 'mx-0' : 'mx-3'
               )}
             >
-              <a
-                title='First Page'
-                className={cn(
-                  currentPage === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                  'bg-pmdGrayBright px-2 py-1 rounded-md',
-                )}
-              >
-                First
-              </a>
-            </Link>
-            <Link
-              href={(
-                EUrlsPages.PUBLISHERS +
-                ('?page=' + (currentPage - 1))
-              )}
-            >
-              <a
-                title='Previous Page'
-                className={cn(
-                  currentPage === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                  'bg-pmdGrayBright px-2 py-1 rounded-md',
-                )}
-              >
-                Prev
-              </a>
-            </Link>
-            <span className='mx-2'>{currentPage} of {totalPages}</span>
-            <Link
-              href={(
-                EUrlsPages.PUBLISHERS +
-                ('?page=' + (currentPage + 1))
-              )}
-            >
-              <a
-                title='Next Page'
-                className={cn(
-                  currentPage === totalPages ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                  'bg-pmdGrayBright px-2 py-1 rounded-md',
-                )}
-              >
-                Next
-              </a>
-            </Link>
-            <Link
-              href={(
-                EUrlsPages.PUBLISHERS +
-                ('?page=' + totalPages)
-              )}
-            >
-              <a
-                title='Last Page'
-                className={cn(
-                  currentPage === totalPages ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                  'bg-pmdGrayBright px-2 py-1 rounded-md',
-                )}
-              >
-                Last
-              </a>
-            </Link>
+              <SearchResultsItem className='flex' apiTitleOrName='name' itemType='publishers' showLabel={false} pageBreakpoint={publishersBreakpoint} />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div
+            id='search'
+            className={cn(
+              'flex justify-center gap-x-3 gap-y-6 mx-auto mt-6 w-full',
+              isBreakpoint ? 'flex-row items-start' : 'flex-col items-stretch'
+            )}
+          >
+            <div
+              id='locked'
+              className='flex justify-center items-stretch'
+            >
+              <div
+                id='warning'
+                className={cn(
+                  'z-10 bg-[url("/lines2.svg")] bg-pmdGrayBright bg-opacity-80 bg-cover bg-no-repeat bg-bottom bg-local mx-3 mt-1 p-2 border border-pmdGray rounded w-full h-max font-bold text-center',
+                  isBreakpoint ? 'max-w-[304px]' : 'max-w-full'
+                )}
+              >
+                <div className='flex flex-col justify-center items-center my-4'>
+                  <h2 className='animate-text'>Unlock <br />Advanced <br />Search</h2>
+                  <p className='mt-8 mb-2 font-bold text-pmdGrayDark'>Filter by</p>
+                  <div className='flex flex-col justify-center items-center gap-2 mb-8 align-middle'>
+                    <Chip title='Search Term' className='bg-gradient-to-b from-white to-pmdGrayLight shadow-md shadow-pmdRed border border-pmdRed font-medium' />
+                    {/* <Chip title='Era' className='bg-gradient-to-b from-white to-pmdGrayLight shadow-md shadow-pmdRed border border-pmdRed font-medium' /> */}
+                  </div>
+                  <h2 className='animate-text'>Free</h2>
+                  <p className='font-medium text-pmdGray text-xs'>during <em>PMD Plus</em> Early Access</p>
+                  <div className='flex flex-col justify-center items-center gap-y-4 mt-8 w-full'>
+                    <Link href={`/${EUrlsPages.CREATE_ACCOUNT}`}>
+                      <a
+                        aria-label='Create Free Account'
+                        title='Create Free Account'
+                        className='flex gap-2 text-2xl button'
+                      >Create Account</a>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              id='searchResults'
+              className={cn(
+                'flex flex-col justify-center items-stretch gap-6',
+                isBreakpoint ? 'mx-0' : 'mx-3'
+              )}
+            >
+              <SearchResultsItem className='flex' apiTitleOrName='name' itemType='publishers' showLabel={false} pageBreakpoint={publishersBreakpoint} />
+            </div>
+          </div>
+        )}
       </div>
-    </Page>
+    </Page >
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<IPublishersPageProps> = async (context) => {
   return {
     props: {
       prevUrl: context.req.headers.referer ?? ''

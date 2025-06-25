@@ -13,6 +13,7 @@ interface IFieldAutocompleteSingleProps {
   value: string;
   placeholder?: string;
   error?: IError;
+  hideChips?: boolean;
 };
 
 const FieldAutocompleteSingle: FC<IFieldAutocompleteSingleProps> = ({
@@ -21,7 +22,8 @@ const FieldAutocompleteSingle: FC<IFieldAutocompleteSingleProps> = ({
   suggestions,
   value,
   placeholder,
-  error
+  error,
+  hideChips = false
 }): JSX.Element => {
   const [active, setActive] = useState(0);
   const [filtered, setFiltered] = useState(['']);
@@ -98,17 +100,17 @@ const FieldAutocompleteSingle: FC<IFieldAutocompleteSingleProps> = ({
     if (isShow) {
       if (filtered.length) {
         return (
-          <ul className='list-none'>
+          <ul className='w-full max-w-[273px] list-none'>
             {filtered.map((suggestion, index) => {
               let autoClassName;
               if (index === active) autoClassName = '!bg-pmdGrayLight';
               return (
                 <li
-                  className={`${autoClassName} py-1.5 pl-2 px-3 w-full h-full cursor-pointer hover:bg-pmdGrayLight odd:bg-pmdGrayBright even:bg-white`}
+                  className={`${autoClassName} py-1.5 pl-2 px-3 max-w-[273px] w-full h-full cursor-pointer hover:bg-pmdGrayLight odd:bg-pmdGrayBright even:bg-white`}
                   key={suggestion}
                   onClick={onClick}
                 >
-                  <a className='text-pmdGrayDark hover:text-pmdGrayDark no-underline' title={suggestion}>{suggestion}</a>
+                  <a className='w-full max-w-[273px] text-pmdGrayDark hover:text-pmdGrayDark no-underline' title={suggestion}>{suggestion}</a>
                 </li>
               );
             })}
@@ -117,7 +119,7 @@ const FieldAutocompleteSingle: FC<IFieldAutocompleteSingleProps> = ({
       } else {
         return (
           <div>
-            <em>Not found</em>
+            <em>Unavailable with current selections</em>
           </div>
         );
       }
@@ -159,13 +161,13 @@ const FieldAutocompleteSingle: FC<IFieldAutocompleteSingleProps> = ({
       {renderAutocomplete() && (
         <div
           ref={listRef}
-          className={`absolute z-10 max-h-[200px] w-[328px] overflow-${filtered?.length > 5 && 'scroll'
+          className={`absolute z-10 max-h-[200px] max-w-[273px] w-[328px] overflow-y-auto
             } rounded-[5px] bg-white shadow-button`}
         >
           {renderAutocomplete()}
         </div>
       )}
-      {value && (
+      {hideChips !== true && value && (
         <div className='flex flex-wrap gap-2 mt-2 px-2'>
           <ChipRemovable onClose={handleDeleteChip} title={value} />
         </div>

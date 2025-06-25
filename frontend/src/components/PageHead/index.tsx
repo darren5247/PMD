@@ -16,7 +16,13 @@ const PageHead: FC<IPageHeadProps> = ({
 }): JSX.Element => {
   const siteUrl = process.env.NEXT_PUBLIC_DOMAIN_URL || 'https://pianomusicdatabase.com';
   const titleValid = title ? title : 'Piano Music Database - Find the Perfect Piece';
-  const descriptionValid = description ? description : 'Piano Music Database is a search engine and database of pedagogical repertoire (level, element, mood, style, and more) built for piano teachers. Find the perfect piece on PianoMusicDatabase.com.';
+  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '');
+  const descriptionValid = description
+    ? (() => {
+        const clean = stripHtml(description);
+        return clean.length > 157 ? clean.slice(0, 157) + '...' : clean;
+      })()
+    : 'Piano Music Database is a search engine and database of pedagogical repertoire (level, element, mood, style, and more) built for piano teachers. Find the perfect piece on PianoMusicDatabase.com.';
   const urlValid = url ? url : '';
   const imageValid = image ? image : (siteUrl + '/pmd.png');
   const imageAltValid = image ? titleValid : 'Banner for PianoMusicDatabase.com with centered red logo on white background';

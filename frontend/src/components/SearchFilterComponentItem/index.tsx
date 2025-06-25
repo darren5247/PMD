@@ -2,11 +2,15 @@ import { FC, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Divider from '@src/components/Divider';
 import api from '@src/api/config';
+import { CFilterOptionsItems } from '@src/constants';
+import FieldAutocompleteSingle from '@src/components/FieldAutocompleteSingle';
 
 interface ISearchFilterComponentItemProps {
   isAnd: boolean; // Flag to indicate if the filter is for 'and' or 'or' condition
-  currentFilter: string; // Current filter value (e.g., 'elementFilter', 'composerFilter')
+  itemType: string; // Type of item (e.g., 'elements', 'composers')
+  itemTypeTitleOrName: string; // Title or Name for the item type
   filterName: string; // Name of the filter (e.g., 'Element', 'Composer')
+  apiField: string; // API field to fetch data (e.g., 'element_categories', 'composers')
   apiEndpoint: string; // API endpoint to fetch data (e.g., 'elements', 'composers')
   apiEndpointFilters?: string; // Optional filters for the API endpoint
   apiEndpointPageSize?: number; // Optional page size for the API endpoint
@@ -14,23 +18,21 @@ interface ISearchFilterComponentItemProps {
   apiSort?: string; // Optional sort parameter for the API endpoint
   queryKey: string; // Query key to update in the URL (e.g., 'element', 'composer')
   placeholder: string; // Placeholder text for the dropdown
-  onBack: () => void; // Callback to go back to the previous view
-  onSelect: () => void; // Callback when an item is selected
 }
 
 const SearchFilterComponentItem: FC<ISearchFilterComponentItemProps> = ({
   isAnd,
-  currentFilter,
+  itemType,
+  itemTypeTitleOrName,
   filterName,
   apiEndpoint,
+  apiField,
   apiEndpointFilters,
   apiEndpointPageSize = 10,
   apiTitleOrName,
   apiSort,
   queryKey,
   placeholder,
-  onBack,
-  onSelect
 }): JSX.Element => {
   const router = useRouter();
 
@@ -45,13 +47,36 @@ const SearchFilterComponentItem: FC<ISearchFilterComponentItemProps> = ({
     const fetchData = async () => {
       try {
         setIsLoading(true);
+
+        // Facet filters for all options in CFilterOptionsItems
+        // Find the filter options for the current itemType
+        const filterOptions = CFilterOptionsItems.find(opt => opt.itemType === itemType);
+
+        // Facet filters for all options in the matched filterOptions
+        const facetFilters = filterOptions && filterOptions.filterOptions
+          ? filterOptions.filterOptions.map((option: any, index: number) => {
+            const queryValue = router.query[option.queryKey];
+            if (queryValue && queryValue !== '' && queryValue !== 'undefined' && queryValue !== undefined) {
+              return `&filters[$and][${index}][${itemType}][${option.apiField}][${option.apiTitleOrName}][$eq]=${queryValue}`;
+            }
+            return '';
+          }).join('')
+          : '';
+
+        // Facet filters using the q or Text Search query
+        const textSearchFilter = router.query.q
+          ? `&filters[$and][${filterOptions && filterOptions.filterOptions ? filterOptions.filterOptions.length : 0}][${itemType}][${itemTypeTitleOrName}][$containsi]=${router.query.q}`
+          : '';
+
+        // Call the API to fetch data
         const fetchedData = [];
         const { data } = await api.get(
-          `${apiEndpoint}?pagination[page]=1${apiEndpointFilters}&pagination[pageSize]=${apiEndpointPageSize}&sort[0]=${apiSort}`,
+          `${apiEndpoint}?pagination[page]=1${apiEndpointFilters}&pagination[pageSize]=${apiEndpointPageSize}&sort[0]=${apiSort}${facetFilters}${textSearchFilter}`,
         );
         fetchedData.push(...data?.data);
         setCurrentPage(data?.meta?.pagination.page);
         setTotalPages(data?.meta?.pagination.pageCount);
+
         if (
           data?.meta?.pagination &&
           fetchedData.length > 0 &&
@@ -60,11 +85,13 @@ const SearchFilterComponentItem: FC<ISearchFilterComponentItemProps> = ({
           const { page, pageCount } = data?.meta?.pagination;
           for (let i = page + 1; i <= pageCount; i++) {
             let response = await api.get(
-              `${apiEndpoint}?pagination[page]=${i}${apiEndpointFilters}&pagination[pageSize]=${apiEndpointPageSize}&sort[0]=${apiSort}`
+              `${apiEndpoint}?pagination[page]=${i}${apiEndpointFilters}&pagination[pageSize]=${apiEndpointPageSize}&sort[0]=${apiSort}${facetFilters}${textSearchFilter}`
             );
             fetchedData.push(...response.data.data);
             const currentPage = response.data.meta.pagination.page;
             setCurrentPage(currentPage);
+
+            // Calculate the progress percentage
             const progress = (currentPage / pageCount) * 100;
             const progressElement = document.querySelector('#progressFilter') as HTMLElement | null;
             if (progressElement) {
@@ -72,16 +99,15 @@ const SearchFilterComponentItem: FC<ISearchFilterComponentItemProps> = ({
             }
           }
         }
+
+        // Set the items based on the API response
         if (apiTitleOrName === 'title') {
           const itemsData = fetchedData.map((item: any) => item.attributes.title);
           setItems(itemsData);
-          localStorage.setItem(`${filterName.toLowerCase()}Data`, JSON.stringify(itemsData));
         } else {
           const itemsData = fetchedData.map((item: any) => item.attributes.name);
           setItems(itemsData);
-          localStorage.setItem(`${filterName.toLowerCase()}Data`, JSON.stringify(itemsData));
         }
-        localStorage.setItem(`${filterName.toLowerCase()}Timestamp`, new Date().getTime().toString());
       } catch (error) {
         console.error(`Error fetching ${filterName.toLowerCase()} data:`, error);
         setItems([]);
@@ -90,22 +116,8 @@ const SearchFilterComponentItem: FC<ISearchFilterComponentItemProps> = ({
       }
     };
 
-    // Check if data is cached in localStorage and not older than 5 minutes
-    const cachedData = localStorage.getItem(`${filterName.toLowerCase()}Data`);
-    const cachedTimestamp = localStorage.getItem(`${filterName.toLowerCase()}Timestamp`);
-    const now = new Date().getTime();
-    const parsedTimestamp = parseInt(cachedTimestamp || '0', 10);
-
-    if (cachedData && cachedTimestamp && now - parsedTimestamp < 5 * 60 * 1000) {
-      // Use cached data if it is less than 5 minutes old
-      setItems(JSON.parse(cachedData));
-      setIsLoading(false);
-      console.log(`Using cached ${filterName.toLowerCase()} data`);
-    } else {
-      // Fetch new data from the API
-      fetchData();
-    }
-  }, [apiEndpoint, apiEndpointFilters, apiEndpointPageSize, apiTitleOrName, apiSort, filterName]);
+    fetchData();
+  }, [itemType, itemTypeTitleOrName, apiEndpoint, apiField, apiEndpointFilters, apiEndpointPageSize, apiTitleOrName, apiSort, filterName, queryKey, router]);
 
   // Update the filter and URL
   const changeFilter = (value: string) => {
@@ -116,35 +128,6 @@ const SearchFilterComponentItem: FC<ISearchFilterComponentItemProps> = ({
       pathname: router.pathname,
       query: { ...updatedQuery, [queryKey]: value },
     });
-    onSelect(); // Call the onSelect callback when a filter is selected
-
-    // // DETECT IF THE FILTER IS FOR 'AND' OR 'OR' CONDITION
-    // if (!isAnd) {
-    //   // If the filter is for 'or' condition, update the URL with the new filter
-    //   const updatedQuery = { ...router.query };
-    //   delete updatedQuery[queryKey];
-    //   router.push({
-    //     pathname: router.pathname,
-    //     query: { ...updatedQuery, [queryKey]: value },
-    //   });
-    //   onSelect(); // Call the onSelect callback when a filter is selected
-    // } else {
-    //   // If the filter is for 'and' condition, remove the existing filter from the URL
-    //   const existingFilter = router.query[queryKey];
-
-    //   const updatedFilter = existingFilter
-    //     ? Array.isArray(existingFilter)
-    //       ? [...existingFilter, value]
-    //       : [existingFilter, value]
-    //     : [value];
-
-    //   router.push({
-    //     pathname: router.pathname,
-    //     query: { ...router.query, [queryKey]: updatedFilter },
-    //   });
-
-    //   onSelect(); // Call the onSelect callback when a filter is selected
-    // }
   };
 
   return (
@@ -183,24 +166,21 @@ const SearchFilterComponentItem: FC<ISearchFilterComponentItemProps> = ({
             <label htmlFor={queryKey}>
               <strong>{filterName}</strong>
             </label>
-            <select
-              id={queryKey}
-              className='flex px-2 py-3 border border-pmdGrayLight rounded max-w-[220px] text-pmdGrayDark text-base no-underline cursor-pointer grow'
-              onChange={(e) => changeFilter(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  changeFilter(e.currentTarget.value);
-                }
+            <FieldAutocompleteSingle
+              name={queryKey}
+              value={
+                Array.isArray(router.query[queryKey])
+                  ? (router.query[queryKey] as string[])[0] || ''
+                  : (router.query[queryKey] as string) || ''
+              }
+              setValue={(val: string) => {
+                changeFilter(val);
               }}
-              tabIndex={0}
-            >
-              <option value=''>{placeholder}</option>
-              {items.map((item, index) => (
-                <option key={index} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+              suggestions={items}
+              placeholder={placeholder}
+              error={undefined}
+              hideChips={true}
+            />
           </div>
         )
       )}

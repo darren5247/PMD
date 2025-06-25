@@ -30,7 +30,7 @@ const AccountCreatedPage: NextPage<IAccountCreatedPageProps> = ({ prevUrl }) => 
       });
 
       if (res.data.ok) {
-        router.push(`/${EUrlsPages.LOG_IN}`);
+        router.push(`/${EUrlsPages.LOG_IN}?confirmed=true`, undefined, { shallow: false });
         dispatch({
           type: ENotificationActionTypes.SET_MESSAGE,
           payload: {
@@ -62,9 +62,9 @@ const AccountCreatedPage: NextPage<IAccountCreatedPageProps> = ({ prevUrl }) => 
         description='Enter received the 6-digit code to confirm email'
         image=''
       >
-        <div className="max-w-[600px] mx-auto p-6">
+        <div className="mx-auto p-6 max-w-[600px]">
           <h1 className="mb-10 text-center">Confirm Your Account</h1>
-          <div className="max-w-md mx-auto">
+          <div className="mx-auto max-w-md">
             <p className="mb-10 text-gray-600">Please enter the 6-digit code sent to your email: <strong>{email}</strong></p>
             <form onSubmit={handleSubmit}>
               <input
@@ -72,7 +72,7 @@ const AccountCreatedPage: NextPage<IAccountCreatedPageProps> = ({ prevUrl }) => 
                 maxLength={6}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full border rounded px-3 py-2 mb-4"
+                className="mb-4 px-3 py-2 border rounded w-full"
                 placeholder="Enter code"
                 required
               />

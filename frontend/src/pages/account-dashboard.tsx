@@ -11,7 +11,9 @@ import {
   IconBookmark,
   IconUserProfileOutlinedRed,
   IconDownloadWhite,
-  IconCheckboxChevron
+  IconCheckboxChevron,
+  IconCoin,
+  IconCard
 } from '@src/common/assets/icons';
 import {
   ENotificationActionTypes,
@@ -55,10 +57,9 @@ const AccountDashboardPage: NextPage<IAccountDashboardPageProps> = ({ prevUrl })
         if (accountData.subscriptionStatus) {
           setUserSubscriptionStatus(accountData.subscriptionStatus);
         };
-      } else {
-        router.push(`/${EUrlsPages.ACCOUNT_SETTINGS}`, undefined, { shallow: false });
       };
     } else {
+      localStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search + window.location.hash);
       router.push(`/${EUrlsPages.LOG_IN}`, undefined, { shallow: false });
     };
   }, [router]);
@@ -170,6 +171,38 @@ const AccountDashboardPage: NextPage<IAccountDashboardPageProps> = ({ prevUrl })
             </a>
           </div>
         </section>
+        <section id='pmdplus' className='flex flex-col mt-12 px-3 max-w-[600px]'>
+          <h2 id='pmd-plus' className='my-4 text-center'>PMD Plus</h2>
+          <div className='flex flex-wrap justify-center items-center gap-3 mt-4'>
+            <Link href={`/${EUrlsPages.PRICING}`}><a id='pricing' title='Pricing'>
+              <div
+                className='flex flex-col items-center bg-white hover:bg-pmdGrayBright shadow-header p-2 rounded-lg w-48 h-36 transition-all cursor-pointer'
+              >
+                <div className='flex flex-col items-center gap-y-4 my-auto'>
+                  <ImageNext src={IconCoin} alt='' height={48} width={48} />
+                  <p className='font-extrabold text-pmdRed leading-5 tracking-[0.2px]'>
+                    Pricing
+                  </p>
+                </div>
+              </div>
+            </a></Link>
+            {userSubscriptionStatus && userSubscriptionStatus == 'active' && (
+              <Link href={`/${EUrlsPages.PLAN}`}><a title='Your Plan Details'>
+                <div
+                  id='your-plan-details'
+                  className='flex flex-col items-center bg-white hover:bg-pmdGrayBright shadow-header p-2 rounded-lg w-48 h-36 transition-all cursor-pointer'
+                >
+                  <div className='flex flex-col items-center gap-y-4 my-auto'>
+                    <ImageNext src={IconCard} alt='' height={48} width={48} />
+                    <p className='font-extrabold text-pmdRed leading-5 tracking-[0.2px]'>
+                      Your Plan Details
+                    </p>
+                  </div>
+                </div>
+              </a></Link>
+            )}
+          </div>
+        </section>
         <section id='free-music' className='flex flex-col mt-12 px-3 max-w-[816px]'>
           <h2 id='free-sheet-music' className='my-4 text-center'>Free Sheet Music</h2>
           <p className='text-center'>
@@ -241,38 +274,6 @@ const AccountDashboardPage: NextPage<IAccountDashboardPageProps> = ({ prevUrl })
             <a title='Join Now Free' href='https://facebook.com/groups/371031046051751' className='!px-10 !py-3 text-lg buttonwhite'>Join Now Free</a>
           </div>
         </section>
-        {/* <section id='pmdplus' className='flex flex-col mt-12 px-3 max-w-[600px]'>
-          <h2 id='pmd-plus' className='my-4'>PMD Plus</h2>
-          <div className='flex flex-wrap justify-center items-center gap-3 mt-4'>
-            <Link href={`/${EUrlsPages.PRICING}`}><a id='pricing' title='Pricing'>
-              <div
-                className='flex flex-col items-center bg-white hover:bg-pmdGrayBright shadow-header p-2 rounded-lg w-48 h-36 transition-all cursor-pointer'
-              >
-                <div className='flex flex-col items-center gap-y-4 my-auto'>
-                  <ImageNext src={IconCoin} alt='' height={48} width={48} />
-                  <p className='font-extrabold text-pmdRed leading-5 tracking-[0.2px]'>
-                    Pricing
-                  </p>
-                </div>
-              </div>
-            </a></Link>
-            {userSubscriptionStatus && userSubscriptionStatus == 'active' && (
-              <Link href={`/${EUrlsPages.PLAN}`}><a title='Your Plan Details'>
-                <div
-                  id='your-plan-details'
-                  className='flex flex-col items-center bg-white hover:bg-pmdGrayBright shadow-header p-2 rounded-lg w-48 h-36 transition-all cursor-pointer'
-                >
-                  <div className='flex flex-col items-center gap-y-4 my-auto'>
-                    <ImageNext src={IconCard} alt='' height={48} width={48} />
-                    <p className='font-extrabold text-pmdRed leading-5 tracking-[0.2px]'>
-                      Your Plan Details
-                    </p>
-                  </div>
-                </div>
-              </a></Link>
-            )}
-          </div>
-        </section> */}
         <section id='your-contributions' className='flex flex-col mt-12 px-3 text-center'>
           <h2 id='contributions' className='my-4'>Contributions</h2>
           <div className='flex flex-row max-[444px]:flex-col justify-start items-start gap-x-3 gap-y-12 mt-4'>

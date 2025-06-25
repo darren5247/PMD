@@ -46,10 +46,9 @@ const WorksAddedPage: NextPage<IWorksAddedPageProps> = ({ prevUrl }) => {
                 if (accountData.email) {
                     setUserEmail(accountData.email);
                 };
-            } else {
-                router.push(`/${EUrlsPages.ACCOUNT_SETTINGS}`, undefined, { shallow: false });
             };
         } else {
+            localStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search + window.location.hash);
             router.push(`/${EUrlsPages.LOG_IN}`, undefined, { shallow: false });
         };
 
@@ -244,77 +243,77 @@ const WorksAddedPage: NextPage<IWorksAddedPageProps> = ({ prevUrl }) => {
                                     </div>
                                 ))}
                                 {works.length > 9 && (
-                                <div className='flex justify-center items-center gap-3 min-[340px]:gap-5 mt-6 mb-3 text-sm'>
-                                    <Link
-                                        href={(
-                                            EUrlsPages.WORKS_ADDED +
-                                            '?page=1#worksAdded'
-                                        )}
-                                    >
-                                        <a
-                                            title='First Page'
-                                            className={cn(
-                                                currentPage === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                                                'bg-pmdGrayBright px-2 py-1 rounded-md',
+                                    <div className='flex justify-center items-center gap-3 min-[340px]:gap-5 mt-6 mb-3 text-sm'>
+                                        <Link
+                                            href={(
+                                                EUrlsPages.WORKS_ADDED +
+                                                '?page=1#worksAdded'
                                             )}
                                         >
-                                            First
-                                        </a>
-                                    </Link>
-                                    <Link
-                                        href={(
-                                            EUrlsPages.WORKS_ADDED +
-                                            ('?page=' + (currentPage - 1))
-                                            + '#worksAdded'
-                                        )}
-                                    >
-                                        <a
-                                            title='Previous Page'
-                                            className={cn(
-                                                currentPage === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                                                'bg-pmdGrayBright px-2 py-1 rounded-md',
+                                            <a
+                                                title='First Page'
+                                                className={cn(
+                                                    currentPage === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
+                                                    'bg-pmdGrayBright px-2 py-1 rounded-md',
+                                                )}
+                                            >
+                                                First
+                                            </a>
+                                        </Link>
+                                        <Link
+                                            href={(
+                                                EUrlsPages.WORKS_ADDED +
+                                                ('?page=' + (currentPage - 1))
+                                                + '#worksAdded'
                                             )}
                                         >
-                                            Prev
-                                        </a>
-                                    </Link>
-                                    <span className='mx-2'>{currentPage} of {totalPages}</span>
-                                    <Link
-                                        href={(
-                                            EUrlsPages.WORKS_ADDED +
-                                            ('?page=' + (currentPage + 1))
-                                            + '#worksAdded'
-                                        )}
-                                    >
-                                        <a
-                                            title='Next Page'
-                                            className={cn(
-                                                currentPage === totalPages ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                                                'bg-pmdGrayBright px-2 py-1 rounded-md',
+                                            <a
+                                                title='Previous Page'
+                                                className={cn(
+                                                    currentPage === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
+                                                    'bg-pmdGrayBright px-2 py-1 rounded-md',
+                                                )}
+                                            >
+                                                Prev
+                                            </a>
+                                        </Link>
+                                        <span className='mx-2'>{currentPage} of {totalPages}</span>
+                                        <Link
+                                            href={(
+                                                EUrlsPages.WORKS_ADDED +
+                                                ('?page=' + (currentPage + 1))
+                                                + '#worksAdded'
                                             )}
                                         >
-                                            Next
-                                        </a>
-                                    </Link>
-                                    <Link
-                                        href={(
-                                            EUrlsPages.WORKS_ADDED +
-                                            ('?page=' + totalPages)
-                                            + '#worksAdded'
-                                        )}
-                                    >
-                                        <a
-                                            title='Last Page'
-                                            className={cn(
-                                                currentPage === totalPages ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                                                'bg-pmdGrayBright px-2 py-1 rounded-md',
+                                            <a
+                                                title='Next Page'
+                                                className={cn(
+                                                    currentPage === totalPages ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
+                                                    'bg-pmdGrayBright px-2 py-1 rounded-md',
+                                                )}
+                                            >
+                                                Next
+                                            </a>
+                                        </Link>
+                                        <Link
+                                            href={(
+                                                EUrlsPages.WORKS_ADDED +
+                                                ('?page=' + totalPages)
+                                                + '#worksAdded'
                                             )}
                                         >
-                                            Last
-                                        </a>
-                                    </Link>
-                                </div>
-                            )}
+                                            <a
+                                                title='Last Page'
+                                                className={cn(
+                                                    currentPage === totalPages ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
+                                                    'bg-pmdGrayBright px-2 py-1 rounded-md',
+                                                )}
+                                            >
+                                                Last
+                                            </a>
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className='flex flex-col justify-center items-center px-4 text-center'>

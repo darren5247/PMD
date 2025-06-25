@@ -84,7 +84,8 @@ export const NavigationDropdown: FC<INavigationDropdownProps> = ({
       }
     });
     if (currentUrl !== EUrlsPages.LOG_IN && currentUrl !== '') {
-      router.push('/', undefined, { shallow: false });
+      localStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search + window.location.hash);
+      router.push(`/${EUrlsPages.LOG_IN}`, undefined, { shallow: false });
     } else {
       router.reload();
     };

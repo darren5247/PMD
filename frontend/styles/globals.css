@@ -48,6 +48,14 @@ html {
   @apply scroll-pt-[120px];
 }
 
+/* Set no-print class elements that shouldn't be printed */
+@media print {
+    .no-print, .no-print *
+    {
+        display: none !important;
+    }
+}
+
 /* Change selection background */
 ::selection {
   @apply bg-pmdRed !text-white;

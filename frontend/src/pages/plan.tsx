@@ -7,6 +7,8 @@ import { stripeService } from '@src/services/stripe';
 import { TUserAttributes } from '@src/types';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import ImageNext from '@src/components/ImageNext';
+import { IconOpen, IconOpenWhite } from '@src/common/assets/icons';
 
 interface IPricingPageProps {
     prevUrl: string | undefined;
@@ -18,7 +20,8 @@ interface ISubscriptionDetails {
     status: string;
     startDate: string;
     currentPeriodEnd: string;
-    amount: number;
+    amount: number | string | null;
+    cancelAt: string | null;
     cancelAtPeriodEnd: boolean;
     paymentMethod?: {
         card: {
@@ -32,16 +35,51 @@ interface ISubscriptionDetails {
 
 const PricingPage: NextPage<IPricingPageProps> = ({ prevUrl }) => {
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [subscription, setSubscription] = useState<any>(null);
     const [currentSubscriptionDetails, setCurrentSubscriptionDetails] = useState<ISubscriptionDetails | null>(null);
 
     useEffect(() => {
         const getSubscription = async () => {
+            setLoading(true);
             const { subscription } = await stripeService.getSubscriptionStatus();
 
             if (subscription) {
                 setSubscription(subscription);
+
+                // Determine currency symbol
+                let symbol = '';
+                switch (subscription.currency?.toLowerCase()) {
+                    case 'usd':
+                        symbol = '$';
+                        break;
+                    case 'eur':
+                        symbol = '€';
+                        break;
+                    case 'gbp':
+                        symbol = '£';
+                        break;
+                    case 'jpy':
+                        symbol = '¥';
+                        break;
+                    case 'aud':
+                        symbol = 'A$';
+                        break;
+                    case 'cad':
+                        symbol = 'C$';
+                        break;
+                    case 'chf':
+                        symbol = 'CHF';
+                        break;
+                    case 'cny':
+                        symbol = '¥';
+                        break;
+                    case 'inr':
+                        symbol = '₹';
+                        break;
+                    default:
+                        symbol = subscription.currency ? subscription.currency.toUpperCase() : '';
+                }
 
                 setCurrentSubscriptionDetails({
                     plan: subscription.items.data[0].plan.product,
@@ -49,10 +87,17 @@ const PricingPage: NextPage<IPricingPageProps> = ({ prevUrl }) => {
                     status: subscription.status,
                     startDate: new Date(subscription.start_date * 1000).toLocaleDateString(),
                     currentPeriodEnd: new Date(subscription.current_period_end * 1000).toLocaleDateString(),
-                    amount: subscription.items.data[0].price.unit_amount / 100,
+                    amount: `${symbol}${(subscription.items.data[0].price.unit_amount / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    cancelAt: subscription.cancel_at
+                        ? new Date(subscription.cancel_at * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : null,
                     cancelAtPeriodEnd: subscription.cancel_at_period_end,
                     paymentMethod: await stripeService.getPaymentMethod(),
                 });
+                setLoading(false);
+            } else {
+                setCurrentSubscriptionDetails(null);
+                setLoading(false);
             }
         };
 
@@ -60,10 +105,9 @@ const PricingPage: NextPage<IPricingPageProps> = ({ prevUrl }) => {
         if (accountData.id) {
             if (accountData.name) {
                 getSubscription();
-            } else {
-                router.push(`/${EUrlsPages.ACCOUNT_SETTINGS}`, undefined, { shallow: false });
             };
         } else {
+            localStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search + window.location.hash);
             router.push(`/${EUrlsPages.LOG_IN}`, undefined, { shallow: false });
         };
     }, [router]);
@@ -74,22 +118,12 @@ const PricingPage: NextPage<IPricingPageProps> = ({ prevUrl }) => {
             price: 5,
             interval: 'month' as const,
             priceId: `${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY}`,
-            features: [
-                'Feature 1',
-                'Feature 2',
-                'Feature 3',
-            ],
         },
         {
             title: 'Yearly',
             price: 50,
             interval: 'year' as const,
             priceId: `${process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY}`,
-            features: [
-                'All Monthly Features',
-                'Two Months Free',
-                'Priority Support',
-            ],
         },
     ];
 
@@ -142,15 +176,23 @@ const PricingPage: NextPage<IPricingPageProps> = ({ prevUrl }) => {
     };
 
     const getPaymentMethodDisplay = (paymentMethod: any) => {
+        console.log('Payment Method:', paymentMethod);
+        if (!paymentMethod) {
+            return (
+                <span className='text-pmdGray text-sm'>N/A</span>
+            );
+        }
         switch (paymentMethod.type) {
             case 'card':
                 return (
                     <>
-                        {paymentMethod.card.brand} •••• {paymentMethod.card.last4}
+                        Card
                         <br />
-                        <span className='text-pmdGray text-sm'>
-                            Expires {paymentMethod.card.exp_month}/{paymentMethod.card.exp_year}
-                        </span>
+                        <p className='mt-1 pl-2 border-pmdGray border-l-2 text-pmdGray'>
+                            <span className='capitalize'>{paymentMethod.card.brand}</span> •••• {paymentMethod.card.last4}
+                            <br />
+                            <span className='text-sm'>Expires {paymentMethod.card.exp_month}/{paymentMethod.card.exp_year}</span>
+                        </p>
                     </>
                 );
             case 'us_bank_account':
@@ -158,7 +200,7 @@ const PricingPage: NextPage<IPricingPageProps> = ({ prevUrl }) => {
                     <>
                         {paymentMethod.us_bank_account.bank_name} •••• {paymentMethod.us_bank_account.last4}
                         <br />
-                        <span className='text-pmdGray text-sm'>
+                        <span className='pl-2 border-pmdGray border-l-2 text-pmdGray text-sm'>
                             US Bank Account
                         </span>
                     </>
@@ -168,7 +210,7 @@ const PricingPage: NextPage<IPricingPageProps> = ({ prevUrl }) => {
                     <>
                         {paymentMethod.sepa_debit.bank_name} •••• {paymentMethod.sepa_debit.last4}
                         <br />
-                        <span className='text-pmdGray text-sm'>
+                        <span className='pl-2 border-pmdGray border-l-2 text-pmdGray text-sm'>
                             SEPA Direct Debit
                         </span>
                     </>
@@ -190,109 +232,241 @@ const PricingPage: NextPage<IPricingPageProps> = ({ prevUrl }) => {
             showBackBarShare={true}
             showBackBarFeedback={true}
             prevUrl={prevUrl}
-            url={EUrlsPages.PRICING}
-            title='Pricing - Piano Music Database'
-            description='Choose your plan and subscribe to PMD Plus. Get access to exclusive features, priority support, and more.'
+            url={EUrlsPages.PLAN}
+            title='Plan - Piano Music Database'
+            description='Learn more about your PMD Plus subscription plan. Get access to exclusive features, priority support, and more with PMD Plus.'
             image=''
         >
-            <div className='flex flex-col gap-8'>
+            <div className='flex flex-col gap-2'>
                 <div className='flex flex-col gap-3'>
                     <h1 className='text-center'>PMD Plus</h1>
                     <p className='text-center'>Get access to exclusive features, priority support, and more.</p>
                 </div>
-                <div className='flex justify-center items-center gap-6 mx-auto w-full'>
-                    <div className='mx-auto max-w-md'>
-                        <div className='bg-white shadow-md mt-8 p-6 rounded-lg'>
-                            <h2 className='mb-8'>Subscription Details</h2>
-                            {currentSubscriptionDetails ? (
-                                <div className='flex flex-col gap-4 text-left'>
-                                    <div className='pb-4 border-b'>
-                                        <h3 className='mb-2'>Plan Information</h3>
-                                        <p><strong>Plan Name:</strong> <Link href={`/${EUrlsPages.PRICING}`}><a title='PMD Plus Pricing'>PMD Plus</a></Link></p>
-                                        <p><strong>Billing Interval:</strong> {(currentSubscriptionDetails && currentSubscriptionDetails.interval === 'year') ? 'Yearly' : (currentSubscriptionDetails && currentSubscriptionDetails.interval === 'month') ? 'Monthly' : ''}</p>
-                                        <p><strong>Status:</strong>
-                                            <span className={`capitalize ml-1 ${currentSubscriptionDetails.status === 'active' ? 'text-green-600' :
-                                                currentSubscriptionDetails.status === 'incomplete' ? 'text-yellow-600' :
-                                                    'text-red-600'
-                                                }`}>
-                                                {currentSubscriptionDetails.status}
-                                            </span>
-                                        </p>
-                                    </div>
-
-                                    <div className='pb-4 border-b'>
-                                        <h3 className='mb-2'>Billing Information</h3>
-                                        <p><span>Current Cost:</span> ${currentSubscriptionDetails.amount}/{currentSubscriptionDetails.interval}</p>
-                                        {currentSubscriptionDetails.paymentMethod && (
-                                            <p>
-                                                <span>Payment Method:</span>{' '}
-                                                {getPaymentMethodDisplay(currentSubscriptionDetails.paymentMethod)}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <h3 className='mb-2'>Dates</h3>
-                                        <p><strong>Start Date:</strong> {currentSubscriptionDetails.startDate}</p>
-                                        <p><strong>Current Period Ends:</strong> {currentSubscriptionDetails.currentPeriodEnd}</p>
-                                        {currentSubscriptionDetails.cancelAtPeriodEnd && (
-                                            <p className='mt-2 text-red-600'>
-                                                Your subscription will end on {currentSubscriptionDetails.currentPeriodEnd}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div className='flex flex-col justify-center items-center gap-12 mx-auto mt-12 w-full'>
-                                        <button
-                                            title='Manage Payment'
-                                            className='disabled:bg-green-500 disabled:opacity-50 disabled:text-white button'
-                                            onClick={handleUpdatePayment}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' || e.key === ' ') {
-                                                    handleUpdatePayment();
-                                                }
-                                            }}
-                                            tabIndex={0}
-                                        >Manage Payment</button>
-                                        {(currentSubscriptionDetails.interval && currentSubscriptionDetails.interval == 'year') && (
-                                            <button
-                                                title='Change to Monthly'
-                                                className='disabled:bg-green-500 disabled:opacity-50 disabled:text-white button'
-                                                onClick={() => handleDowngrade(PRICING_PLANS[0].priceId)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter' || e.key === ' ') {
-                                                        handleDowngrade(PRICING_PLANS[0].priceId);
-                                                    }
-                                                }}
-                                                tabIndex={0}
-                                            >Change to Monthly</button>
-                                        )}
-                                        {(currentSubscriptionDetails.interval && currentSubscriptionDetails.interval == 'month') && (
-                                            <button
-                                                title='Change to Yearly'
-                                                className='disabled:bg-green-500 disabled:opacity-50 disabled:text-white button'
-                                                onClick={() => handleUpgrade(PRICING_PLANS[1].priceId)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter' || e.key === ' ') {
-                                                        handleUpgrade(PRICING_PLANS[1].priceId);
-                                                    }
-                                                }}
-                                                tabIndex={0}
-                                            >Change to Yearly</button>
-                                        )}
-                                        <button title='Cancel Subscription' onClick={handleCancelSubscription} className='buttonwhite'>Cancel Subscription</button>
-                                    </div>
+                {
+                    (loading) ? (
+                        <div className='flex justify-center items-center gap-6 mx-auto w-full'>
+                            <div className='mx-auto max-w-md'>
+                                <div className='bg-white shadow-md mt-8 p-6 rounded-lg'>
+                                    <h2 className='mb-8 pb-3 border-pmdGrayLight border-b'>Subscription Details</h2>
+                                    <p className='text-center'>Loading...</p>
+                                    <p className='mt-2 text-pmdGrayDark text-center'>
+                                        Details not loading? <Link href={`/${EUrlsPages.PLAN}`}>
+                                            <a
+                                                title='Plan Details'
+                                                className='text-pmdRed hover:text-pmdGray underline cursor-pointer'
+                                            >
+                                                Reload
+                                            </a>
+                                        </Link>
+                                    </p>
                                 </div>
-                            ) : (
-                                <div className='flex flex-col justify-center items-center gap-3'>
-                                    <p>No active subscription found.</p>
-                                    <p>Check out our plans:</p>
-                                    <Link href={`/${EUrlsPages.PRICING}`}><a title='Pricing' className='mb-3 cursor-pointer button'>Pricing</a></Link>
-                                </div>
-                            )}
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    ) : (
+                        <div className='flex justify-center items-center gap-6 mx-auto w-full'>
+                            <div className='mx-auto max-w-md'>
+                                <div className='bg-white shadow-md mt-8 p-6 rounded-lg'>
+                                    <h2 className='mb-8 pb-3 border-pmdGrayLight border-b'>Subscription Details</h2>
+                                    {currentSubscriptionDetails ? (
+                                        <div className='flex flex-col gap-4 text-left'>
+                                            <div id='plan-info' className='flex flex-col gap-1 text-left'>
+                                                <h3 id='plan-information' className='mb-2'>Plan Information</h3>
+                                                <p><strong>Plan Name:</strong> PMD Plus {(currentSubscriptionDetails && currentSubscriptionDetails.interval === 'year') ? 'Yearly' : (currentSubscriptionDetails && currentSubscriptionDetails.interval === 'month') ? 'Monthly' : ''}</p>
+                                                <p><strong>Status:</strong>
+                                                    <span className={`capitalize ml-1 ${currentSubscriptionDetails.status === 'active' ? 'text-green-600' :
+                                                        currentSubscriptionDetails.status === 'incomplete' ? 'text-yellow-600' :
+                                                            'text-red-600'
+                                                        }`}>
+                                                        {currentSubscriptionDetails.status}
+                                                    </span>
+                                                </p>
+                                                {currentSubscriptionDetails.cancelAtPeriodEnd && (
+                                                    <p className='mt-1 pl-2 border-red-600 border-l-2 text-red-600'>
+                                                        Cancelled - Ends on {currentSubscriptionDetails.currentPeriodEnd} at {currentSubscriptionDetails.cancelAt}
+                                                        <br />
+                                                        <a
+                                                            title='Renew to undo cancellation'
+                                                            className='flex flex-row gap-2 cursor-pointer'
+                                                            onClick={handleUpdatePayment}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                                    handleUpdatePayment();
+                                                                }
+                                                            }}
+                                                            tabIndex={0}
+                                                        >
+                                                            <ImageNext
+                                                                src={IconOpen}
+                                                                alt=''
+                                                                height={16}
+                                                                width={16}
+                                                                className='z-0'
+                                                            />
+                                                            RENEW to undo cancellation
+                                                        </a>
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <hr className='my-4' />
+
+                                            <div id='billing-info' className='flex flex-col gap-1 text-left'>
+                                                <h3 id='billing-information' className='mb-2'>Billing Information</h3>
+                                                <p><strong>Current Cost:</strong> {currentSubscriptionDetails.amount}</p>
+                                                <p><strong>Billing Interval:</strong> {(currentSubscriptionDetails && currentSubscriptionDetails.interval === 'year') ? 'Yearly' : (currentSubscriptionDetails && currentSubscriptionDetails.interval === 'month') ? 'Monthly' : ''}</p>
+                                                {currentSubscriptionDetails.paymentMethod && (
+                                                    <p>
+                                                        <strong>Payment Method:</strong>{' '}
+                                                        {getPaymentMethodDisplay(currentSubscriptionDetails.paymentMethod)}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <hr className='my-4' />
+
+                                            <div id='dates' className='flex flex-col gap-1 text-left'>
+                                                <h3 id='important-dates' className='mb-2'>Important Dates</h3>
+                                                <p><strong>Start Date:</strong> {currentSubscriptionDetails.startDate}</p>
+                                                <p><strong>End Date:</strong> {currentSubscriptionDetails.currentPeriodEnd}</p>
+                                                {currentSubscriptionDetails.cancelAtPeriodEnd && (
+                                                    <p className='mt-1 pl-2 border-red-600 border-l-2 text-red-600'>
+                                                        Cancelled - Ends on {currentSubscriptionDetails.currentPeriodEnd} at {currentSubscriptionDetails.cancelAt}
+                                                        <br />
+                                                        <a
+                                                            title='Renew to undo cancellation'
+                                                            className='flex flex-row gap-2 cursor-pointer'
+                                                            onClick={handleUpdatePayment}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                                    handleUpdatePayment();
+                                                                }
+                                                            }}
+                                                            tabIndex={0}
+                                                        >
+                                                            <ImageNext
+                                                                src={IconOpen}
+                                                                alt=''
+                                                                height={16}
+                                                                width={16}
+                                                                className='z-0'
+                                                            />
+                                                            RENEW to undo cancellation
+                                                        </a>
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <hr className='my-4' />
+
+                                            <div id='payment-actions' className='flex flex-col justify-center items-center gap-2 mx-auto mb-2 w-full text-left'>
+                                                <h3 id='actions' className='mb-2 w-full'>Actions</h3>
+                                                <div className='flex flex-col justify-center items-center gap-6 mx-auto w-full text-center'>
+                                                    {currentSubscriptionDetails.cancelAtPeriodEnd ? (
+                                                        <a
+                                                            title='Renew to undo cancellation'
+                                                            className='flex flex-row justify-center gap-2 w-full text-center align-middle cursor-pointer button'
+                                                            onClick={handleUpdatePayment}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                                    handleUpdatePayment();
+                                                                }
+                                                            }}
+                                                            tabIndex={0}
+                                                        >
+                                                            <ImageNext
+                                                                src={IconOpenWhite}
+                                                                alt=''
+                                                                height={16}
+                                                                width={16}
+                                                                className='z-0'
+                                                            />
+                                                            RENEW to Undo Cancellation
+                                                        </a>
+                                                    ) : (
+                                                        <>
+                                                            <a
+                                                                title='Manage Payment'
+                                                                className='flex flex-row justify-center gap-2 disabled:bg-green-500 disabled:opacity-50 w-full disabled:text-white text-center align-middle cursor-pointer button'
+                                                                onClick={handleUpdatePayment}
+                                                                onKeyDown={(e) => {
+                                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                                        handleUpdatePayment();
+                                                                    }
+                                                                }}
+                                                                tabIndex={0}
+                                                            >
+                                                                <ImageNext
+                                                                    src={IconOpenWhite}
+                                                                    alt=''
+                                                                    height={16}
+                                                                    width={16}
+                                                                    className='z-0'
+                                                                />
+                                                                Manage Payment
+                                                            </a>
+                                                            {(currentSubscriptionDetails.interval && currentSubscriptionDetails.interval == 'year') && (
+                                                                <a
+                                                                    title='Change to Monthly'
+                                                                    className='flex flex-row justify-center gap-2 disabled:bg-green-500 disabled:opacity-50 w-full disabled:text-white text-center align-middle cursor-pointer button'
+                                                                    onClick={() => handleDowngrade(PRICING_PLANS[0].priceId)}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                                            handleDowngrade(PRICING_PLANS[0].priceId);
+                                                                        }
+                                                                    }}
+                                                                    tabIndex={0}
+                                                                >
+                                                                    <ImageNext
+                                                                        src={IconOpenWhite}
+                                                                        alt=''
+                                                                        height={16}
+                                                                        width={16}
+                                                                        className='z-0'
+                                                                    />
+                                                                    Change to Monthly
+                                                                </a>
+                                                            )}
+                                                            {(currentSubscriptionDetails.interval && currentSubscriptionDetails.interval == 'month') && (
+                                                                <a
+                                                                    title='Change to Yearly'
+                                                                    className='flex flex-row justify-center gap-2 disabled:bg-green-500 disabled:opacity-50 w-full disabled:text-white text-center align-middle cursor-pointer button'
+                                                                    onClick={() => handleUpgrade(PRICING_PLANS[1].priceId)}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                                            handleUpgrade(PRICING_PLANS[1].priceId);
+                                                                        }
+                                                                    }}
+                                                                    tabIndex={0}
+                                                                >
+                                                                    <ImageNext
+                                                                        src={IconOpenWhite}
+                                                                        alt=''
+                                                                        height={16}
+                                                                        width={16}
+                                                                        className='z-0'
+                                                                    />
+                                                                    Change to Yearly
+                                                                </a>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                    {!currentSubscriptionDetails.cancelAtPeriodEnd && (
+                                                        <button title='Cancel Subscription' onClick={handleCancelSubscription} className='w-full buttonwhite'>Cancel Subscription</button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div id='no-active-subscription' className='flex flex-col justify-center items-center gap-3'>
+                                            <p>No active subscription found.</p>
+                                            <p>Check out our plans:</p>
+                                            <Link href={`/${EUrlsPages.PRICING}`}><a title='Pricing' className='mb-3 cursor-pointer button'>Pricing</a></Link>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
             </div>
         </Page>
     );

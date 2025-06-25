@@ -69,9 +69,7 @@ const Header: FC<IHeaderProps> = ({ className, classNameLogo, classNameSearchFor
   return (
     <header
       role='banner'
-      className={cn(
-        `top-0 h-[50px] z-40 w-full transition-all fixed`
-      )}
+      className='top-0 z-40 fixed w-full h-[50px] transition-all no-print'
     >
       <div
         className={cn(

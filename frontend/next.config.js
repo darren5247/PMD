@@ -654,37 +654,37 @@ const nextConfig = {
       },
       {
         source: "/loginconfirm",
-        destination: "/log-in-confirmed",
+        destination: "/log-in?confirmed=true",
         permanent: true
       },
       {
         source: "/log-in-confirm",
-        destination: "/log-in-confirmed",
+        destination: "/log-in?confirmed=true",
         permanent: true
       },
       {
         source: "/log-inconfirm",
-        destination: "/log-in-confirmed",
+        destination: "/log-in?confirmed=true",
         permanent: true
       },
       {
         source: "/login-confirm",
-        destination: "/log-in-confirmed",
+        destination: "/log-in?confirmed=true",
         permanent: true
       },
       {
         source: "/loginconfirmed",
-        destination: "/log-in-confirmed",
+        destination: "/log-in?confirmed=true",
         permanent: true
       },
       {
         source: "/login-confirmed",
-        destination: "/log-in-confirmed",
+        destination: "/log-in?confirmed=true",
         permanent: true
       },
       {
         source: "/log-inconfirmed",
-        destination: "/log-in-confirmed",
+        destination: "/log-in?confirmed=true",
         permanent: true
       },
       //Accounts - Create Account

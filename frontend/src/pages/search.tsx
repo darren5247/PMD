@@ -37,9 +37,9 @@ const SearchPage: NextPage<ISearchPageProps> = ({ serverState, url, queries }) =
   let breakpointCalc: string;
   const accountData: TUserAttributes = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('accountData') || '{}') : {};
   if (accountData.id) {
-    breakpointCalc = '(min-width: 1150px)';
+    breakpointCalc = '(min-width: 1188px)';
   } else {
-    breakpointCalc = '(min-width: 1030px)';
+    breakpointCalc = '(min-width: 1060px)';
   };
   const isBreakpoint = useMediaQuery(breakpointCalc);
   function capitalizeFirstLetter(string: string) {

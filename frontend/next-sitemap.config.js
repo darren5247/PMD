@@ -9,7 +9,6 @@ module.exports = {
   exclude: [
     '/create-account',
     '/log-in',
-    '/log-in-confirmed',
     '/accept-terms',
     '/account-created',
     '/account-dashboard',

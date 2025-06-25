@@ -39,8 +39,10 @@ const LogInPage: NextPage<ILogInPageProps> = ({ prevUrl }) => {
   useEffect(() => {
     const accountData: TUserAttributes = JSON.parse(localStorage.getItem('accountData') || '{}');
     if (accountData.id) {
-      if (!accountData.name) {
-        router.push(`/${EUrlsPages.ACCOUNT_SETTINGS}`, undefined, { shallow: false });
+      const redirectUrl = localStorage.getItem('redirectAfterLogin');
+      if (redirectUrl) {
+        localStorage.removeItem('redirectAfterLogin');
+        router.push(redirectUrl, undefined, { shallow: false });
       } else {
         router.push(`/${EUrlsPages.ACCOUNT_DASHBOARD}`, undefined, { shallow: false });
       };
@@ -82,8 +84,10 @@ const LogInPage: NextPage<ILogInPageProps> = ({ prevUrl }) => {
         });
         const accountData: TUserAttributes = userData.data;
         localStorage?.setItem('accountData', JSON.stringify(accountData));
-        if (!accountData.name) {
-          router.push(`/${EUrlsPages.ACCOUNT_SETTINGS}`, undefined, { shallow: false });
+        const redirectUrl = localStorage.getItem('redirectAfterLogin');
+        if (redirectUrl) {
+          localStorage.removeItem('redirectAfterLogin');
+          router.push(redirectUrl, undefined, { shallow: false });
         } else {
           router.push(`/${EUrlsPages.ACCOUNT_DASHBOARD}`, undefined, { shallow: false });
         };

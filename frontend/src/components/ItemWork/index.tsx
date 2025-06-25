@@ -916,7 +916,7 @@ export const ItemWork: FC<IItemWorkProps> = ({ musicWork, isEdit }): JSX.Element
             {musicWork.attributes.styles.data?.length ? (
               <div id='style' className='flex md:flex-row flex-col justify-left items-left mt-4 text-left'>
                 {musicWork.attributes.styles.data?.length > 1 ? (<p className='min-w-[175px] text-left'><strong>Styles</strong></p>) : (<p className='min-w-[175px] text-left'><strong>Style</strong></p>)}
-                <div className='flex flex-wrap'>
+                <div className='flex flex-wrap gap-2'>
                   {musicWork.attributes.styles.data?.map((style, styleIndex) => (
                     <p key={style.attributes.title}>
                       {/* <Link href={`/${EUrlsPages.SEARCH}?musicWorks[refinementList][styles][0]=${encodeURI(style.attributes.title)}`}><a
@@ -932,7 +932,7 @@ export const ItemWork: FC<IItemWorkProps> = ({ musicWork, isEdit }): JSX.Element
             {musicWork.attributes.themes.data?.length ? (
               <div id='theme' className='flex md:flex-row flex-col justify-left items-left mt-4 text-left'>
                 {musicWork.attributes.themes.data?.length > 1 ? (<p className='min-w-[175px] text-left'><strong>Themes</strong></p>) : (<p className='min-w-[175px] text-left'><strong>Theme</strong></p>)}
-                <div className='flex flex-wrap'>
+                <div className='flex flex-wrap gap-2'>
                   {musicWork.attributes.themes.data?.map((theme, themeIndex) => (
                     <p key={theme.attributes.title}>
                       {/* <Link href={`/${EUrlsPages.SEARCH}?musicWorks[refinementList][themes][0]=${encodeURI(theme.attributes.title)}`}><a

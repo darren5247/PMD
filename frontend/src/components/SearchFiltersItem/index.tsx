@@ -1,244 +1,510 @@
 import { FC, useState, useEffect } from 'react';
+import cn from 'classnames';
 import { useRouter } from 'next/router';
-import api from '@src/api/config';
-import ImageNext from '@src/components/ImageNext';
+import ChipSearchItem from '@src/components/ChipSearchItem';
+import { useMediaQuery } from '@src/common/hooks';
+import { CFilterKeys, CItemKeys, IItemKey, CFilterOptionsItems, IFilterOption } from '@src/constants';
+import SearchFormItem from '@src/components/SearchFormItem';
 import SearchFilterComponentItem from '@src/components/SearchFilterComponentItem';
-import { CFilterOptionsElements, IFilterOption } from '@src/constants';
-import { IconArrow } from '@src/common/assets/icons';
 
 interface ISearchFiltersItemProps {
-    isAnd: boolean;
-    currentFilter: string | null;
-    isOpen: boolean;
-    onClose?: () => void;
+  itemType: string;
+  itemTypeTitleOrName: string;
+  className?: string;
+  mobileBreakpoint: string; // Optional mobile breakpoint e.g. 1250px
+  onReset: (filterName?: string) => void; // Callback upon resetting filters, optionally with a filter name
 };
 
-export const SearchFiltersItem: FC<ISearchFiltersItemProps> = ({
-    isAnd,
-    currentFilter,
-    isOpen,
-    onClose
-}): JSX.Element => {
-    const router = useRouter();
-    const { query } = router;
+const SearchFiltersItem: FC<ISearchFiltersItemProps> = ({ itemType, itemTypeTitleOrName, className, mobileBreakpoint, onReset }): JSX.Element => {
+  const router = useRouter();
+  const { query } = router;
+  const [isLoading, setIsLoading] = useState(true);
+  const [facetedFilters, setFacetedFilters] = useState<IFilterOption[] | null>(null);
 
-    const [isLoading, setIsLoading] = useState(true);
-    const [selectedFilter, setSelectedFilter] = useState<IFilterOption | null>(null);
-    const [facetedFilters, setFacetedFilters] = useState<IFilterOption[] | null>(null);
+  const [show, setShow] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(3);
 
-    const [textQuery, setTextQuery] = useState<string | null>(null);
-    const [elementCategoryFilter, setElementCategoryFilter] = useState<string | null>(null);
-    const [levelFilter, setLevelFilter] = useState<string | null>(null);
+  const isBreakpoint = useMediaQuery(mobileBreakpoint ? `(min-width: ${mobileBreakpoint})` : '(min-width: 1250px)');
+  const [isFiltering, setFiltering] = useState<boolean>(true);
+  const [isFilteringMultiple, setFilteringMultiple] = useState<boolean>(true);
+  const [itemTypeState, setItemTypeState] = useState<IItemKey | null>(null);
 
-    useEffect(() => {
-        // Get/Set Queries on Page Load (Doing these will update the filters with the current queries)
-        const { category, level, q } = query;
+  const [textQuery, setTextQuery] = useState<string | null>(null);
+  const [elementCategoryFilter, setElementCategoryFilter] = useState<string | string[] | null>(null);
+  const [levelFilter, setLevelFilter] = useState<string | string[] | null>(null);
+  const [eraFilter, setEraFilter] = useState<string | string[] | null>(null);
 
-        // Set Filters based on the query params on page load (if any)
-        const setFilter = (filterType: string, queryKey: string, fallbackKey: string | null) => {
-            const filterValue = query[queryKey] || fallbackKey;
-            if (filterValue) {
-                switch (filterType) {
-                    case 'text':
-                        setTextQuery(filterValue as string);
-                        break;
-                    case 'category':
-                        setElementCategoryFilter(filterValue as string);
-                        break;
-                    case 'level':
-                        setLevelFilter(filterValue as string);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
+  useEffect(() => {
+    // Get/Set Queries on Page Load (Doing these will update the filters with the current queries)
+    const { q, category, level, era } = query;
 
-        // Check for the NEW filters - overwrites the old filters
-        setFilter('text', 'q', q as string);
-        setFilter('category', 'element_categories', category as string);
-        setFilter('level', 'levels', level as string);
-    }, [query]);
-
-    // Fetch data on component mount
-    useEffect(() => {
-        let andIndex = 0;
-        const setCurrentFilter = () => {
-            const filtersCurrently =
-                // (textQuery ? `&filters[$or][0][works][title][$containsi]=${textQuery}&filters[$or][1][works][composers][name][$containsi]=${textQuery}&filters[$or][2][works][level][title][$containsi]=${textQuery}&filters[$or][3][works][eras][name][$containsi]=${textQuery}` : '') +
-                (elementCategoryFilter ? `&filters[$and][${andIndex++}][$or][0][elements][element_categories][name][$eq]=` + elementCategoryFilter : '') +
-                (levelFilter ? `&filters[$and][${andIndex++}][$or][0][elements][levels][title][$eq]=` + levelFilter : '')
-            return (filtersCurrently && filtersCurrently !== '' ? filtersCurrently : '');
+    // Set Filters based on the query params on page load (if any)
+    const setFilter = (filterType: string, queryKey: string, fallbackKey: string | null) => {
+      const filterValue = query[queryKey] || fallbackKey;
+      if (filterValue) {
+        switch (filterType) {
+          case 'text':
+            setTextQuery(filterValue as string);
+            break;
+          case 'category':
+            setElementCategoryFilter(filterValue as string);
+            break;
+          case 'level':
+            setLevelFilter(filterValue as string);
+            break;
+          case 'era':
+            setEraFilter(filterValue as string);
+            break;
+          default:
+            break;
         }
-
-        // Fetch data from the API
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
-                const fetchedFilters: IFilterOption[] = [];
-                for (const filterOption of CFilterOptionsElements) {
-                    const { data } = await api.get(
-                        `${filterOption.apiEndpoint}?pagination[page]=1&fields[0]=id&pagination[pageSize]=1${setCurrentFilter()}&filters[$and][0][works][id][$null]=false`
-                    );
-                    if (data?.data[0]?.attributes.works.data.length > 0) {
-                        fetchedFilters.push(filterOption);
-                    }
-                    // Update progress bar after each API call by adding filters to the faceted filters
-                    setFacetedFilters([...fetchedFilters]);
-                }
-            } catch (error) {
-                console.error('Error fetching filter data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        // Fetch data only once when the modal is opened
-        if (isOpen && facetedFilters === null) {
-            if (!isAnd && currentFilter && currentFilter !== '') {
-                setSelectedFilter(CFilterOptionsElements.find((option) => option.filterID === currentFilter) || null);
-                setFacetedFilters(CFilterOptionsElements.filter((option) => option.filterID == currentFilter));
-                setIsLoading(false);
-            } else {
-                if (
-                    (textQuery && textQuery !== '') ||
-                    (elementCategoryFilter && elementCategoryFilter !== '') ||
-                    (levelFilter && levelFilter !== '')
-                ) {
-                    // fetchData();
-                    setFacetedFilters(CFilterOptionsElements);
-                    setIsLoading(false);
-                } else {
-                    setFacetedFilters(CFilterOptionsElements);
-                    setIsLoading(false);
-                }
-            }
-        }
-    }, [
-        isAnd,
-        currentFilter,
-        isOpen,
-        facetedFilters,
-        textQuery,
-        elementCategoryFilter,
-        levelFilter
-    ]);
-
-    // Update the filter and URL
-    const selectFilter = (filter: IFilterOption) => {
-        setSelectedFilter(filter);
+      }
     };
 
-    return (
-        <div className='flex flex-col gap-2 w-full text-center'>
-            {selectedFilter ? (
-                <>
-                    <SearchFilterComponentItem
-                        isAnd={isAnd}
-                        currentFilter={currentFilter || ''}
-                        filterName={selectedFilter.filterName}
-                        apiEndpoint={selectedFilter.apiEndpoint}
-                        apiEndpointFilters={selectedFilter.apiEndpointFilters}
-                        apiEndpointPageSize={selectedFilter.apiEndpointPageSize}
-                        apiTitleOrName={selectedFilter.apiTitleOrName}
-                        apiSort={selectedFilter.apiSort}
-                        queryKey={selectedFilter.queryKey}
-                        placeholder={selectedFilter.placeholder}
-                        onSelect={() => {
-                            setSelectedFilter(null);
-                            onClose && onClose();
-                        }}
-                        onBack={() => {
-                            setSelectedFilter(null);
-                        }}
-                    />
-                    {!isAnd ? '' : (
-                        <a
-                            title='Back to All Filters'
-                            className='flex justify-center items-center gap-3 px-3 py-3 border border-pmdGrayLight rounded w-full min-w-min text-lg text-center no-underline align-middle cursor-pointer grow'
-                            onClick={() => {
-                                setSelectedFilter(null);
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    setSelectedFilter(null);
-                                }
-                            }}
-                            tabIndex={0}
-                        >
-                            <ImageNext src={IconArrow} height={22} width={22} className='min-w-[22px] min-h-[22px]' />
-                            Back to All Filters
-                        </a>
-                    )}
-                </>
-            ) : (
-                <h2 className='font-bold text-lg'>Choose a Filter</h2>
-            )}
-            {
-                !selectedFilter && facetedFilters ? (
-                    (isLoading) ? (
-                        <div className='flex flex-col justify-center items-center gap-4 mt-2 w-full h-full'>
-                            <svg
-                                aria-hidden='true'
-                                className='fill-pmdRed w-14 h-14 text-pmdGrayLight animate-spin'
-                                viewBox='0 0 100 101'
-                                fill='none'
-                                xmlns='http://www.w3.org/2000/svg'
-                            >
-                                <path d='M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z' fill='currentColor' />
-                                <path d='M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z' fill='currentFill' />
-                            </svg>
-                            <p className='text-pmdGray text-center italic'>Loading filters...</p>
-                            {facetedFilters && (
-                                <div className='flex flex-col justify-center items-start gap-0 w-full h-full'>
-                                    <div className='bg-pmdRed rounded-full h-1' style={{ width: `${(facetedFilters.length / CFilterOptionsElements.length) * 100}%`, transition: 'width 0.3s linear', transformOrigin: 'right' }}></div>
-                                    <p className='text-pmdGray text-xs'>{((facetedFilters.length / CFilterOptionsElements.length) * 100).toFixed(1)}%</p>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <ul id='filterOptions' className='flex flex-col items-stretch gap-4 text-left whitespace-nowrap list-none'>
-                            {facetedFilters.map((option, index) => (
-                                <li id={'filter' + index.toString() + '-' + option.filterName} key={index} className='flex w-full grow'>
-                                    <a
-                                        title={'Filter by ' + option.filterName}
-                                        className='flex px-2 py-3 border border-pmdGrayLight rounded w-full min-w-min text-pmdGrayDark text-base no-underline cursor-pointer grow'
-                                        onClick={() => {
-                                            console.log(`Filter option clicked: ${option.filterName}`);
-                                            selectFilter(option);
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' || e.key === ' ') {
-                                                console.log(`Filter option clicked: ${option.filterName}`);
-                                                selectFilter(option);
-                                            }
-                                        }}
-                                        tabIndex={0}
-                                    >
-                                        {option.filterName}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    )
-                ) : ((isLoading) && (
-                    <div className='flex flex-col justify-center items-center gap-4 mt-2 w-full h-full'>
-                        <svg
-                            aria-hidden='true'
-                            className='fill-pmdRed w-14 h-14 text-pmdGrayLight animate-spin'
-                            viewBox='0 0 100 101'
-                            fill='none'
-                            xmlns='http://www.w3.org/2000/svg'
-                        >
-                            <path d='M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z' fill='currentColor' />
-                            <path d='M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z' fill='currentFill' />
-                        </svg>
-                        <p className='text-pmdGray text-center italic'>Loading filters...</p>
-                    </div>
-                ))
-            }
-        </div>
+    // Check for the NEW filters - overwrites the old filters
+    setFilter('text', 'q', q as string);
+    setFilter('category', 'element_categories', category as string);
+    setFilter('level', 'levels', level as string);
+    setFilter('era', 'eras', era as string);
+  }, [query]);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    if (facetedFilters === null) {
+      if (
+        (textQuery && textQuery !== '') ||
+        (elementCategoryFilter && elementCategoryFilter !== '') ||
+        (levelFilter && levelFilter !== '') ||
+        (eraFilter && eraFilter !== '')
+      ) {
+        // fetchData();
+        setFacetedFilters(CFilterOptionsItems.filter((item) => {
+          if (item.itemType === itemType) {
+            return item;
+          } else {
+            return null;
+          }
+        }));
+        setIsLoading(false);
+      } else {
+        setFacetedFilters(CFilterOptionsItems.filter((item) => {
+          if (item.itemType === itemType) {
+            return item;
+          } else {
+            return null;
+          }
+        }));
+        setIsLoading(false);
+      }
+    }
+  }, [
+    itemType,
+    facetedFilters,
+    textQuery,
+    elementCategoryFilter,
+    levelFilter,
+    eraFilter
+  ]);
+
+  useEffect(() => {
+    // Get/Set Queries on Page Load (Doing these will update the filters with the current queries)
+    const { q, category, level, era } = query;
+
+    // Check if any filter is set
+    setFiltering(
+      !!(
+        category ||
+        level ||
+        era
+      )
     );
+
+    // Check if multiple filters are set
+    setFilteringMultiple(
+      [
+        q && q !== '',
+        category && category !== '',
+        level && level !== '',
+        era && era !== ''
+      ].filter(Boolean).length > 1
+    );
+
+    // Set Item Type State
+    const itemTypeFound = CItemKeys.find((item) => item.value === itemType);
+    if (itemTypeFound) {
+      setItemTypeState(itemTypeFound);
+    } else {
+      setItemTypeState(null);
+    };
+
+    // Set Filters based on the query params on page load (if any)
+    const setFilter = (queryKey: string, fallbackKey: string | null) => {
+      const filterValue = query[queryKey] || fallbackKey;
+      if (filterValue) {
+        // Set the filter value based on the filter type
+        switch (queryKey) {
+          case 'q':
+            setTextQuery(filterValue as string);
+            break;
+          case 'category':
+            setElementCategoryFilter(filterValue as string);
+            break;
+          case 'level':
+            setLevelFilter(filterValue as string);
+            break;
+          case 'era':
+            setEraFilter(filterValue as string);
+            break;
+          default:
+            break;
+        }
+      }
+    };
+
+    // Only apply filters relevant to the current itemType
+    CFilterKeys.filter(filterKey => filterKey.itemType === itemType).forEach((filterKey) => {
+      if (filterKey.filterOptions && Array.isArray(filterKey.filterOptions)) {
+        filterKey.filterOptions.forEach((option) => {
+          setFilter(option.newKey, query[option.newKey] as string);
+        });
+      }
+    });
+  }, [query, itemType]);
+
+  // Reset the text query filter
+  const resetText = () => {
+    setTextQuery('');
+    const { q, ...rest } = router.query;
+    router.push({ pathname: router.pathname, query: rest });
+    onReset('q'); // Call the onReset callback when this filter is reset
+  };
+
+  // Reset SPECIFIC filters using CFilterKeys data
+  const resetSpecificFilter = (filterFilter: string, filterPrefix: string, filterOldKey: string, filterNewKey: string, filterValue: string) => {
+    const resetFilter = (filter: string | string[] | null, setFilter: (value: string | string[] | null) => void) => {
+      if (Array.isArray(filter)) {
+        // If the filter is an array, remove the specific filterValue
+        const updatedFilter = filter.filter((value) => value !== filterValue);
+        setFilter(updatedFilter.length > 0 ? updatedFilter : null);
+      } else {
+        // If the filter is not an array, set it to null
+        setFilter(null);
+      }
+    };
+
+    switch (filterFilter) {
+      case 'elementCategoryFilter':
+        resetFilter(elementCategoryFilter, setElementCategoryFilter);
+        break;
+      case 'levelFilter':
+        resetFilter(levelFilter, setLevelFilter);
+        break;
+      case 'eraFilter':
+        resetFilter(eraFilter, setEraFilter);
+        break;
+      default:
+        console.warn(`Unknown filter: ${filterFilter}`);
+    }
+
+    const { [filterNewKey]: _, [`${filterPrefix}[${filterOldKey}]`]: __, ...rest } = router.query;
+    router.push({ pathname: router.pathname, query: rest });
+    onReset(filterNewKey); // Call the onReset callback when this filter is reset
+  };
+
+  // Reset ALL filters
+  const resetAllFilters = () => {
+    setTextQuery('');
+    setElementCategoryFilter('');
+    setLevelFilter('');
+    setEraFilter('');
+    onReset(); // Call the onReset callback when all filters are reset
+
+    // Reset all filters in the URL
+    router.push({
+      pathname: router.pathname,
+      query: {}
+    })
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY < 0 ? 1 : window.scrollY;
+      if (currentScrollY > lastScrollY) {
+        // Scrolling down
+        setShow(false);
+      } else {
+        // Scrolling up
+        setShow(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);function renderActiveFilterChips(
+  itemType: string,
+  elementCategoryFilter: string | string[] | null,
+  levelFilter: string | string[] | null,
+  eraFilter: string | string[] | null,
+  resetSpecificFilter: (
+    filterFilter: string,
+    filterPrefix: string,
+    filterOldKey: string,
+    filterNewKey: string,
+    filterValue: string
+  ) => void
+) {
+  // Find the filter config for the current itemType
+  const filterConfig = CFilterKeys.find(fk => fk.itemType === itemType);
+  if (!filterConfig || !Array.isArray(filterConfig.filterOptions)) return null;
+
+  // Only use the child array (filterOptions)
+  return filterConfig.filterOptions
+    .filter((filterOption) => {
+      // Get the value for this filter from state
+      let filterValue: string | string[] | null = null;
+      switch (filterOption.filter) {
+        case 'elementCategoryFilter':
+          filterValue = elementCategoryFilter;
+          break;
+        case 'levelFilter':
+          filterValue = levelFilter;
+          break;
+        case 'eraFilter':
+          filterValue = eraFilter;
+          break;
+        default:
+          filterValue = null;
+      }
+      return filterValue;
+    })
+    .flatMap((filterOption) => {
+      let filterValue: string | string[] | null = null;
+      switch (filterOption.filter) {
+        case 'elementCategoryFilter':
+          filterValue = elementCategoryFilter;
+          break;
+        case 'levelFilter':
+          filterValue = levelFilter;
+          break;
+        case 'eraFilter':
+          filterValue = eraFilter;
+          break;
+        default:
+          filterValue = null;
+      }
+      if (Array.isArray(filterValue)) {
+        return filterValue.map((value) => ({
+          ...filterOption,
+          value,
+        }));
+      }
+      return [{ ...filterOption, value: filterValue }];
+    })
+    .map((filterOption, index, array) => (
+      <div key={`${filterOption.filter}-${index}`} className='flex flex-col justify-center items-center gap-2 mx-auto w-full text-center'>
+        <div className='flex flex-wrap justify-center items-stretch gap-2 mx-auto w-full max-w-[279px] text-center'>
+          <ChipSearchItem
+            className='flex flex-row justify-center items-stretch gap-0 h-full'
+            id={`${filterOption.label.replace(/\s+/g, '')}-${index}`}
+            title={filterOption.value || ''}
+            label={filterOption.label}
+            onReset={() =>
+              resetSpecificFilter(
+                filterOption.filter,
+                filterOption.prefix,
+                filterOption.oldKey,
+                filterOption.newKey,
+                (filterOption.value || '')
+              )
+            }
+          />
+        </div>
+        {index < array.length - 1 && (
+          <div className='flex justify-center items-center mx-auto w-full whitespace-nowrap'>
+            <h2 id={'and-' + filterOption.label} className='relative pr-[.3em] pl-[.3em] font-extrabold text-pmdGray text-base min-[380px]:text-lg md:text-xl italic leading-[22px] md:leading-[29px] tracking-[0.1px] min-[380px]:tracking-[0.546667px]'>and</h2>
+          </div>
+        )}
+      </div>
+    ));
+}
+
+  return (
+    <div
+      className={cn(
+        'px-2 pt-1',
+        isBreakpoint && 'sticky flex flex-col gap-4 pb-8 max-w-[320px]',
+        !isBreakpoint && 'flex flex-col gap-6',
+        show && 'top-28',
+        !show && 'top-4'
+      )}
+    >
+      <SearchFormItem pageLink={itemTypeState?.pageLink ? itemTypeState?.pageLink : ''} />
+      {(CItemKeys.find(item => item.value === itemType)?.cleanFiltersOptions || []).map((filterOption, idx) => {
+        return (
+          <div
+            key={filterOption.value || idx}
+            className={cn(
+              'w-full h-full flex flex-col gap-4 p-3 align-middle justify-center items-center bg-pmdGrayBright border border-pmdGray rounded-md',
+              className
+            )}
+          >
+            <SearchFilterComponentItem
+              isAnd={true}
+              itemType={itemType}
+              itemTypeTitleOrName={itemTypeTitleOrName}
+              filterName={filterOption.label ?? ''}
+              apiEndpoint={filterOption.apiEndpoint ?? ''}
+              apiField={filterOption.apiEndpoint ?? ''}
+              apiEndpointFilters={filterOption.apiEndpointFilters}
+              apiEndpointPageSize={filterOption.apiEndpointPageSize}
+              apiTitleOrName={filterOption?.apiTitleOrName}
+              apiSort={filterOption?.apiSort}
+              queryKey={filterOption.label.toLowerCase() ?? ''}
+              placeholder={filterOption.label ?? ''}
+            />
+          </div>
+        );
+      })}
+      {textQuery || isFiltering ? (
+        <div
+          className={cn(
+            'w-full h-full flex flex-col gap-2 p-3 align-middle justify-center items-center bg-pmdGrayBright border border-pmdGray rounded-md',
+            className
+          )}
+        >
+          <div className='flex flex-col justify-center items-center gap-4 mx-auto w-full align-middle'>
+            <div className='flex flex-col justify-center items-center gap-2 mx-auto w-full align-middle'>
+              <h2 className='font-bold text-lg'>Current Filter{isFilteringMultiple ? 's' : ''}</h2>
+              <div className='flex flex-col justify-center items-center gap-2 mx-auto w-full text-center'>
+                {(textQuery && textQuery.length) && (
+                  <div className='flex flex-wrap justify-center items-stretch gap-2 mx-auto w-full max-w-[279px] text-center'>
+                    <ChipSearchItem
+                      className='flex flex-row justify-center items-stretch gap-0 h-full grow'
+                      id='searchterm'
+                      title={textQuery}
+                      label='Search Term'
+                      onReset={resetText}
+                    />
+                  </div>
+                )}
+                {!(textQuery && textQuery.length) || isFilteringMultiple && (
+                  <div className='flex justify-center items-center mx-auto w-full whitespace-nowrap'>
+                    <h2 id='and-searchterm' className='relative pr-[.3em] pl-[.3em] font-extrabold text-pmdGray text-base min-[380px]:text-lg md:text-xl italic leading-[22px] md:leading-[29px] tracking-[0.1px] min-[380px]:tracking-[0.546667px]'>and</h2>
+                  </div>
+                )}
+                {isFiltering ? (
+                  <div
+                    className={cn(
+                      'flex justify-center items-center gap-2 mx-auto w-full text-center',
+                      isFiltering ? 'flex-col' : 'flex-row'
+                    )}
+                  >
+                    {(() => {
+                      // Find the filter config for the current itemType
+                      const filterConfig = CFilterKeys.find(fk => fk.itemType === itemType);
+                      if (!filterConfig || !Array.isArray(filterConfig.filterOptions)) return null;
+
+                      // Only use the child array (filterOptions)
+                      return filterConfig.filterOptions
+                        .filter((filterOption) => {
+                          // Get the value for this filter from state
+                          let filterValue: string | string[] | null = null;
+                          switch (filterOption.filter) {
+                            case 'elementCategoryFilter':
+                              filterValue = elementCategoryFilter;
+                              break;
+                            case 'levelFilter':
+                              filterValue = levelFilter;
+                              break;
+                            case 'eraFilter':
+                              filterValue = eraFilter;
+                              break;
+                            default:
+                              filterValue = null;
+                          }
+                          return filterValue;
+                        })
+                        .flatMap((filterOption) => {
+                          let filterValue: string | string[] | null = null;
+                          switch (filterOption.filter) {
+                            case 'elementCategoryFilter':
+                              filterValue = elementCategoryFilter;
+                              break;
+                            case 'levelFilter':
+                              filterValue = levelFilter;
+                              break;
+                            case 'eraFilter':
+                              filterValue = eraFilter;
+                              break;
+                            default:
+                              filterValue = null;
+                          }
+                          if (Array.isArray(filterValue)) {
+                            return filterValue.map((value) => ({
+                              ...filterOption,
+                              value,
+                            }));
+                          }
+                          return [{ ...filterOption, value: filterValue }];
+                        })
+                        .map((filterOption, index, array) => (
+                          <div key={`${filterOption.filter}-${index}`} className='flex flex-col justify-center items-center gap-2 mx-auto w-full text-center'>
+                            <div className='flex flex-wrap justify-center items-stretch gap-2 mx-auto w-full max-w-[279px] text-center'>
+                              <ChipSearchItem
+                                className='flex flex-row justify-center items-stretch gap-0 h-full'
+                                id={`${filterOption.label.replace(/\s+/g, '')}-${index}`}
+                                title={filterOption.value || ''}
+                                label={filterOption.label}
+                                onReset={() =>
+                                  resetSpecificFilter(
+                                    filterOption.filter,
+                                    filterOption.prefix,
+                                    filterOption.oldKey,
+                                    filterOption.newKey,
+                                    (filterOption.value || '')
+                                  )
+                                }
+                              />
+                            </div>
+                            {index < array.length - 1 && (
+                              <div className='flex justify-center items-center mx-auto w-full whitespace-nowrap'>
+                                <h2 id={'and-' + filterOption.label} className='relative pr-[.3em] pl-[.3em] font-extrabold text-pmdGray text-base min-[380px]:text-lg md:text-xl italic leading-[22px] md:leading-[29px] tracking-[0.1px] min-[380px]:tracking-[0.546667px]'>and</h2>
+                              </div>
+                            )}
+                          </div>
+                        ));
+                    })()}
+                  </div>
+                ) : ''}
+              </div>
+            </div>
+            <div className='flex justify-center items-center align-middle'>
+              <a
+                title='Remove All Filters'
+                className='text-base cursor-pointer'
+                onClick={resetAllFilters}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    resetAllFilters();
+                  }
+                }}
+                tabIndex={0}
+              >
+                {isFilteringMultiple ? (
+                  'Remove all filters.'
+                ) : (
+                  'Remove filter.'
+                )}
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : ''}
+    </div>
+  );
 };
 
 export default SearchFiltersItem;

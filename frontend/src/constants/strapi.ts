@@ -330,76 +330,210 @@ export const CSorts = [
 ];
 
 export interface IFilterOption {
-    filterName: string;
-    apiField: string;
-    apiEndpoint: string;
-    apiEndpointFilters: string;
-    apiEndpointPageSize: number;
-    apiTitleOrName: string;
-    apiSort: string;
-    placeholder: string;
-    queryKey: string;
-    filterID: string;
+    itemType: string;
+    filterOptions: Array<{
+        filterName: string;
+        apiField: string;
+        apiEndpoint: string;
+        apiEndpointFilters: string;
+        apiEndpointPageSize: number;
+        apiTitleOrName: string;
+        apiSort: string;
+        placeholder: string;
+        queryKey: string;
+        filterID: string;
+    }>;
 };
 
-export const CFilterOptionsElements: IFilterOption[] = [
+export const CFilterOptionsItems: IFilterOption[] = [
     {
-        filterName: 'Category',
-        apiField: 'element_categories',
-        apiEndpoint: 'element-categories',
-        apiEndpointFilters: '&fields[0]=name&populate[elements][fields][1]=id&filters[elements][publishedAt][$null]=false',
-        apiEndpointPageSize: 11,
-        apiTitleOrName: 'name',
-        apiSort: 'name:asc',
-        placeholder: 'Select an category',
-        queryKey: 'category',
-        filterID: 'elementCategoryFilter'
+        itemType: 'elements',
+        filterOptions: [
+            {
+                filterName: 'Category',
+                apiField: 'element_categories',
+                apiEndpoint: 'element-categories',
+                apiEndpointFilters: '&fields[0]=name&populate[elements][fields][1]=id&filters[elements][publishedAt][$null]=false',
+                apiEndpointPageSize: 11,
+                apiTitleOrName: 'name',
+                apiSort: 'name:asc',
+                placeholder: 'Select a category',
+                queryKey: 'category',
+                filterID: 'elementCategoryFilter'
+            },
+            {
+                filterName: 'Level',
+                apiField: 'levels',
+                apiEndpoint: 'levels',
+                apiEndpointFilters: '&fields[0]=title&populate[elements][fields][1]=id&filters[elements][publishedAt][$null]=false',
+                apiEndpointPageSize: 7,
+                apiTitleOrName: 'title',
+                apiSort: 'id:asc',
+                placeholder: 'Select a level',
+                queryKey: 'level',
+                filterID: 'levelFilter'
+            }
+        ]
     },
     {
-        filterName: 'Level',
-        apiField: 'level',
-        apiEndpoint: 'levels',
-        apiEndpointFilters: '&fields[0]=title&populate[elements][fields][1]=id&filters[elements][publishedAt][$null]=false',
-        apiEndpointPageSize: 7,
-        apiTitleOrName: 'title',
-        apiSort: 'id:asc',
-        placeholder: 'Select a level',
-        queryKey: 'level',
-        filterID: 'levelFilter'
+        itemType: 'composers',
+        filterOptions: [
+            {
+                filterName: 'Era',
+                apiField: 'eras',
+                apiEndpoint: 'eras',
+                apiEndpointFilters: '&fields[0]=name&populate[composers][fields][1]=id&filters[composers][publishedAt][$null]=false',
+                apiEndpointPageSize: 8,
+                apiTitleOrName: 'name',
+                apiSort: 'name:asc',
+                placeholder: 'Select an era',
+                queryKey: 'era',
+                filterID: 'eraFilter'
+            },
+        ]
+    },
+    {
+        itemType: 'publishers',
+        filterOptions: [
+            {
+                filterName: 'Era',
+                apiField: 'eras',
+                apiEndpoint: 'eras',
+                apiEndpointFilters: '&fields[0]=name&populate[publishers][fields][1]=id&filters[publishers][publishedAt][$null]=false',
+                apiEndpointPageSize: 8,
+                apiTitleOrName: 'name',
+                apiSort: 'name:asc',
+                placeholder: 'Select an era',
+                queryKey: 'era',
+                filterID: 'eraFilter'
+            },
+        ]
+    },
+    {
+        itemType: 'collections',
+        filterOptions: [
+            {
+                filterName: 'Era',
+                apiField: 'eras',
+                apiEndpoint: 'eras',
+                apiEndpointFilters: '&fields[0]=name&populate[collections][fields][1]=id&filters[collections][publishedAt][$null]=false',
+                apiEndpointPageSize: 8,
+                apiTitleOrName: 'name',
+                apiSort: 'name:asc',
+                placeholder: 'Select an era',
+                queryKey: 'era',
+                filterID: 'eraFilter'
+            },
+        ]
     },
 ];
 
 export interface IFilterKey {
-    oldKey: string;
-    prefix: string;
-    newKey: string;
-    label: string;
-    filter: string;
+    itemType: string;
+    filterOptions: Array<{
+        oldKey: string;
+        prefix: string;
+        newKey: string;
+        label: string;
+        filter: string;
+    }>;
 };
 
 export const CFilterKeys: IFilterKey[] = [
     {
-        oldKey: 'query',
-        prefix: 'musicWorks',
-        newKey: 'q',
-        label: 'Search Term',
-        filter: 'textQuery'
+        itemType: 'elements',
+        filterOptions: [
+            {
+                oldKey: 'query',
+                prefix: 'musicWorks',
+                newKey: 'q',
+                label: 'Search Term',
+                filter: 'textQuery'
+            },
+            {
+                oldKey: 'elements',
+                prefix: 'musicWorks[refinementList]',
+                newKey: 'category',
+                label: 'Category',
+                filter: 'elementCategoryFilter'
+            },
+            {
+                oldKey: 'levels',
+                prefix: 'musicWorks[refinementList]',
+                newKey: 'level',
+                label: 'Level',
+                filter: 'levelFilter'
+            },
+        ]
     },
     {
-        oldKey: 'elements',
-        prefix: 'musicWorks[refinementList]',
-        newKey: 'category',
-        label: 'Category',
-        filter: 'elementCategoryFilter'
+        itemType: 'composers',
+        filterOptions: [
+            {
+                oldKey: 'query',
+                prefix: 'musicWorks',
+                newKey: 'q',
+                label: 'Search Term',
+                filter: 'textQuery'
+            },
+            // {
+            //     oldKey: 'eras',
+            //     prefix: 'musicWorks[refinementList]',
+            //     newKey: 'era',
+            //     label: 'Era',
+            //     filter: 'eraFilter'
+            // },
+        ]
     },
     {
-        oldKey: 'levels',
-        prefix: 'musicWorks[refinementList]',
-        newKey: 'level',
-        label: 'Level',
-        filter: 'levelFilter'
+        itemType: 'publishers',
+        filterOptions: [
+            {
+                oldKey: 'query',
+                prefix: 'musicWorks',
+                newKey: 'q',
+                label: 'Search Term',
+                filter: 'textQuery'
+            },
+            // {
+            //     oldKey: 'eras',
+            //     prefix: 'musicWorks[refinementList]',
+            //     newKey: 'era',
+            //     label: 'Era',
+            //     filter: 'eraFilter'
+            // },
+        ]
+    },
+    {
+        itemType: 'collections',
+        filterOptions: [
+            {
+                oldKey: 'query',
+                prefix: 'musicWorks',
+                newKey: 'q',
+                label: 'Search Term',
+                filter: 'textQuery'
+            },
+            // {
+            //     oldKey: 'eras',
+            //     prefix: 'musicWorks[refinementList]',
+            //     newKey: 'era',
+            //     label: 'Era',
+            //     filter: 'eraFilter'
+            // },
+        ]
     },
 ];
+
+export interface ITableItem {
+    id: number;
+    linkURL: string;
+    linkAlt: string;
+    col1: string;
+    col2?: string;
+    col3?: string;
+    col4?: string;
+}
 
 export interface IItemKey {
     label: string;
@@ -409,9 +543,24 @@ export interface IItemKey {
     apiEndpointPageSize: number;
     apiTitleOrName: string;
     apiSort: string;
-    sortOptions: Array<{ label: string; value: string }>;
-    cleanFiltersOptions: Array<{ label: string; value: string }>;
-    cleanFilterOptions: string[];
+    sortOptions: Array<{
+        label: string;
+        value: string;
+    }>;
+    cleanFiltersOptions?: Array<{
+        label: string;
+        value: string;
+        apiEndpoint: string;
+        apiEndpointFilters: string;
+        apiEndpointPageSize: number;
+        apiTitleOrName: string;
+        apiSort: string;
+    }>;
+    col1Width?: string;
+    col2Width?: string;
+    col3Width?: string;
+    col4Width?: string;
+    pageBreakpoint?: string;
     textSearchOptions: string[];
     pageLink: EUrlsPages;
 };
@@ -435,23 +584,43 @@ export const CItemKeys: IItemKey[] = [
             { label: 'Era (Old-New)', value: 'eras.order:asc' },
             { label: 'Era (New-Old)', value: 'eras.order:desc' }
         ],
-        cleanFilterOptions: [
-            'elements',
-            'composers',
-            'levels',
-            'eras',
-            'instrumentations',
-            'holidays',
-            'student_ages',
-            'student_types',
-            'key_signatures',
-            'time_signatures'
-        ],
         cleanFiltersOptions: [
-            { label: 'Element', value: '[elements][name]' },
-            { label: 'Composer', value: '[composers][name]' },
-            { label: 'Level', value: '[levels][title]' },
-            { label: 'Era', value: '[eras][name]' },
+            {
+                label: 'Element',
+                value: '[elements][name]',
+                apiEndpoint: 'elements',
+                apiEndpointFilters: '&fields[0]=name&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
+                apiEndpointPageSize: 362, // Updated 2025-05-17
+                apiTitleOrName: 'name',
+                apiSort: 'name:asc'
+            },
+            {
+                label: 'Composer',
+                value: '[composers][name]',
+                apiEndpoint: 'composers',
+                apiEndpointFilters: '&fields[0]=name&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
+                apiEndpointPageSize: 502, // Updated 2025-05-17
+                apiTitleOrName: 'name',
+                apiSort: 'name:asc'
+            },
+            {
+                label: 'Level',
+                value: '[levels][title]',
+                apiEndpoint: 'levels',
+                apiEndpointFilters: '&fields[0]=title&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
+                apiEndpointPageSize: 7, // Updated 2025-05-17
+                apiTitleOrName: 'title',
+                apiSort: 'id:asc'
+            },
+            {
+                label: 'Era',
+                value: '[eras][name]',
+                apiEndpoint: 'eras',
+                apiEndpointFilters: '&fields[0]=name&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
+                apiEndpointPageSize: 8, // Updated 2025-05-17
+                apiTitleOrName: 'name',
+                apiSort: 'name:asc'
+            },
         ],
         textSearchOptions: [
             '[title]',
@@ -460,6 +629,122 @@ export const CItemKeys: IItemKey[] = [
             '[eras][name]',
         ],
         pageLink: EUrlsPages.SEARCH
+    },
+    {
+        label: 'Collection',
+        labelPlural: 'Collections',
+        value: 'collections',
+        apiEndpointFilters: '&populate[eras][fields][0]=name&fields[0]=title&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
+        apiEndpointPageSize: 339, // Updated 2025-05-14
+        apiTitleOrName: 'title',
+        apiSort: 'title:asc',
+        sortOptions: [
+            { label: 'Title (A-Z)', value: 'title:asc' },
+            { label: 'Title (Z-A)', value: 'title:desc' },
+            // { label: 'Era (Old-New)', value: 'eras.order:asc' },
+            // { label: 'Era (New-Old)', value: 'eras.order:desc' }
+        ],
+        // cleanFiltersOptions: [
+        //     {
+        //         label: 'Era',
+        //         value: '[eras][name]',
+        //         apiEndpoint: 'eras',
+        //         apiEndpointFilters: '&fields[0]=name&populate[collections][fields][1]=id&filters[collections][publishedAt][$null]=false&publicationState=live',
+        //         apiEndpointPageSize: 8, // Updated 2025-05-17
+        //         apiTitleOrName: 'name',
+        //         apiSort: 'name:asc'
+        //     },
+        // ],
+        col1Width: '300px',
+        // col2Width: '100px',
+        pageBreakpoint: '100000px',
+        textSearchOptions: [
+            '[title]',
+            '[catalogue_number]',
+            '[description]',
+            '[isbn_10]',
+            '[isbn_13]',
+            '[eras][name]',
+        ],
+        pageLink: EUrlsPages.COLLECTIONS
+    },
+    {
+        label: 'Composer',
+        labelPlural: 'Composers',
+        value: 'composers',
+        apiEndpointFilters: '&fields[0]=name&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
+        apiEndpointPageSize: 502, // Updated 2025-05-14
+        apiTitleOrName: 'name',
+        apiSort: 'name:asc',
+        sortOptions: [
+            {
+                label: 'Name (A-Z)',
+                value: 'name:asc'
+            },
+            {
+                label: 'Name (Z-A)',
+                value: 'name:desc'
+            }
+        ],
+        // cleanFiltersOptions: [
+        //     {
+        //         label: 'Era',
+        //         value: '[eras][name]',
+        //         apiEndpoint: 'eras',
+        //         apiEndpointFilters: '&fields[0]=name&populate[composers][fields][1]=id&filters[composers][publishedAt][$null]=false&publicationState=live',
+        //         apiEndpointPageSize: 8, // Updated 2025-05-17
+        //         apiTitleOrName: 'name',
+        //         apiSort: 'name:asc'
+        //     },
+        // ],
+        col1Width: '300px',
+        pageBreakpoint: '100000px',
+        textSearchOptions: [
+            '[name]',
+            '[excerpt]',
+            '[nationality]',
+            '[gender]',
+            '[pronouns]',
+            '[ethnicity]',
+        ],
+        pageLink: EUrlsPages.COMPOSERS
+    },
+    {
+        label: 'Publisher',
+        labelPlural: 'Publishers',
+        value: 'publishers',
+        apiEndpointFilters: '&fields[0]=name&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
+        apiEndpointPageSize: 41, // Updated 2025-05-14
+        apiTitleOrName: 'name',
+        apiSort: 'name:asc',
+        sortOptions: [
+            {
+                label: 'Name (A-Z)',
+                value: 'name:asc'
+            },
+            {
+                label: 'Name (Z-A)',
+                value: 'name:desc'
+            }
+        ],
+        // cleanFiltersOptions: [
+        //     {
+        //         label: 'Era',
+        //         value: '[eras][name]',
+        //         apiEndpoint: 'eras',
+        //         apiEndpointFilters: '&fields[0]=name&populate[publishers][fields][1]=id&filters[publishers][publishedAt][$null]=false&publicationState=live',
+        //         apiEndpointPageSize: 8, // Updated 2025-05-17
+        //         apiTitleOrName: 'name',
+        //         apiSort: 'name:asc'
+        //     },
+        // ],
+        col1Width: '300px',
+        pageBreakpoint: '100000px',
+        textSearchOptions: [
+            '[name]',
+            '[excerpt]',
+        ],
+        pageLink: EUrlsPages.PUBLISHERS
     },
     {
         label: 'Element',
@@ -477,14 +762,30 @@ export const CItemKeys: IItemKey[] = [
             { label: 'Level (Easy-Hard)', value: 'levels.id:asc' },
             { label: 'Level (Hard-Easy)', value: 'levels.id:desc' }
         ],
-        cleanFilterOptions: [
-            '[element_categories][name]',
-            '[levels][title]'
-        ],
         cleanFiltersOptions: [
-            { label: 'Category', value: '[element_categories][name]' },
-            { label: 'Level', value: '[levels][title]' }
+            {
+                label: 'Category',
+                value: '[element_categories][name]',
+                apiEndpoint: 'element-categories',
+                apiEndpointFilters: '&fields[0]=name&populate[elements][fields][1]=id&filters[elements][publishedAt][$null]=false&publicationState=live',
+                apiEndpointPageSize: 11, // Updated 2025-05-17
+                apiTitleOrName: 'name',
+                apiSort: 'name:asc'
+            },
+            {
+                label: 'Level',
+                value: '[levels][title]',
+                apiEndpoint: 'levels',
+                apiEndpointFilters: '&fields[0]=title&populate[elements][fields][1]=id&filters[elements][publishedAt][$null]=false&publicationState=live',
+                apiEndpointPageSize: 7, // Updated 2025-05-17
+                apiTitleOrName: 'title',
+                apiSort: 'id:asc'
+            }
         ],
+        col1Width: '330px',
+        col2Width: '165px',
+        col3Width: '110px',
+        pageBreakpoint: '1050px',
         textSearchOptions: [
             '[name]',
             '[nameAlt]',
@@ -493,84 +794,5 @@ export const CItemKeys: IItemKey[] = [
             '[levels][title]',
         ],
         pageLink: EUrlsPages.ELEMENTS
-    },
-    {
-        label: 'Composer',
-        labelPlural: 'Composers',
-        value: 'composers',
-        apiEndpointFilters: '&fields[0]=name&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
-        apiEndpointPageSize: 502, // Updated 2025-05-14
-        apiTitleOrName: 'name',
-        apiSort: 'name:asc',
-        sortOptions: [
-            { label: 'Name (A-Z)', value: 'name:asc' },
-            { label: 'Name (Z-A)', value: 'name:desc' }
-        ],
-        cleanFilterOptions: [
-            '[eras][name]',
-        ],
-        cleanFiltersOptions: [
-            { label: 'Era', value: '[eras][name]' },
-        ],
-        textSearchOptions: [
-            '[name]',
-        ],
-        pageLink: EUrlsPages.COMPOSERS
-    },
-    {
-        label: 'Collection',
-        labelPlural: 'Collections',
-        value: 'collections',
-        apiEndpointFilters: '&fields[0]=title&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
-        apiEndpointPageSize: 339, // Updated 2025-05-14
-        apiTitleOrName: 'title',
-        apiSort: 'title:asc',
-        sortOptions: [
-            { label: 'Title (A-Z)', value: 'title:asc' },
-            { label: 'Title (Z-A)', value: 'title:desc' }
-        ],
-        cleanFilterOptions: [
-            '[eras][name]',
-        ],
-        cleanFiltersOptions: [
-            { label: 'Title', value: '[title]' },
-            { label: 'Catalogue Number', value: '[catalogue_number]' },
-            { label: 'Description', value: '[description]' },
-            { label: 'ISBN 10', value: '[isbn_10]' },
-            { label: 'ISBN 13', value: '[isbn_13]' }
-        ],
-        textSearchOptions: [
-            '[title]',
-            '[catalogue_number]',
-            '[description]',
-            '[isbn_10]',
-            '[isbn_13]',
-            '[eras][name]',
-        ],
-        pageLink: EUrlsPages.COLLECTIONS
-    },
-    {
-        label: 'Publisher',
-        labelPlural: 'Publishers',
-        value: 'publishers',
-        apiEndpointFilters: '&fields[0]=name&populate[works][fields][1]=id&filters[works][publishedAt][$null]=false&publicationState=live',
-        apiEndpointPageSize: 41, // Updated 2025-05-14
-        apiTitleOrName: 'name',
-        apiSort: 'name:asc',
-        sortOptions: [
-            { label: 'Name (A-Z)', value: 'name:asc' },
-            { label: 'Name (Z-A)', value: 'name:desc' }
-        ],
-        cleanFilterOptions: [
-            '[eras][name]',
-        ],
-        cleanFiltersOptions: [
-            { label: 'Era', value: '[eras][name]' },
-        ],
-        textSearchOptions: [
-            '[name]',
-            '[excerpt]',
-        ],
-        pageLink: EUrlsPages.PUBLISHERS
     },
 ];

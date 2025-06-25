@@ -71,7 +71,7 @@ const ModalAcceptTerms: FC<IModalAcceptTermsProps> = ({
                         To access your account, first read through and accept these terms and conditions:
                     </p>
                     {isLoadingTerms ? (
-                        <p className='pt-2 pb-4'>Loading Terms...</p>
+                        <p className='pt-2 pb-4'>Loading terms...</p>
                     ) : (terms ? (
                         <div className='flex flex-col gap-y-6 pt-2 pb-4'>
                             <div className='bg-pmdGrayBright shadow-musicCard px-2 pt-6 pb-8 rounded-md max-w-[1000px] min-h-60 max-h-[calc(90vh-300px)] overflow-y-auto text-left scrollbar'>
@@ -86,11 +86,11 @@ const ModalAcceptTerms: FC<IModalAcceptTermsProps> = ({
                                 {terms[0]?.attributes.showLastUpdated ? (<p className='mt-12 text-pmdGray text-center italic'>These Terms were Last Updated on {terms[0]?.attributes.updatedAt.replace('T', ' at ').replace('Z', ' GMT')}</p>) : ''}
                             </div>
                         </div>) : (
-                        <p className='pt-2 pb-4'><em>Please wait for Terms to load.</em></p>
+                        <p className='pt-2 pb-4'><em>Please wait for terms to load...</em></p>
                     )
                     )}
                     <a
-                        title='I have Read and Agreed the Terms and Conditions'
+                        title='I Have Read and Agreed the Terms and Conditions'
                         className='mx-auto cursor-pointer button'
                         onClick={onClose}
                         onKeyDown={(e) => {
@@ -100,7 +100,7 @@ const ModalAcceptTerms: FC<IModalAcceptTermsProps> = ({
                         }}
                         tabIndex={0}
                     >
-                        I have Read & Agreed to the Terms
+                        I Have Read & Agreed to the Terms
                     </a>
                 </div>
             </div>

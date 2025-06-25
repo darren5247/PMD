@@ -45,10 +45,9 @@ const ComposersAddedPage: NextPage<IComposersAddedPageProps> = ({ prevUrl }) => 
                 if (accountData.email) {
                     setUserEmail(accountData.email);
                 };
-            } else {
-                router.push(`/${EUrlsPages.ACCOUNT_SETTINGS}`, undefined, { shallow: false });
             };
         } else {
+            localStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search + window.location.hash);
             router.push(`/${EUrlsPages.LOG_IN}`, undefined, { shallow: false });
         };
 

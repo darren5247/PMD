@@ -505,86 +505,86 @@ const PublisherDetailsPage: NextPage<IPublisherDetailsPageProps> = ({ musicPubli
                   {/* <div className='flex text-xs'>
                     <Link href={`/${EUrlsPages.SEARCH}?musicWorks[refinementList][publisher][0]=${encodeURI(musicPublisher.attributes.name)}`}><a className='flex flex-row items-center gap-2' title={`Search for pieces by ${musicPublisher.attributes.name}`}><ImageNext src={IconSearchRed} alt='' height={12} width={12} className='z-0' /><strong>See All in a New Search</strong></a></Link>
                   </div> */}
+                  <div className='flex flex-row flex-wrap justify-center items-center gap-3 mt-2 mb-4 w-full max-w-[1200px] md:max-w-[816px] text-center align-middle'>
+                    <Works works={pieces.slice(0, 10).map(piece => ({
+                      id: piece.id,
+                      title: piece.attributes.title,
+                      composers: piece.attributes.composers?.data?.map(composer => composer.attributes.name) || null,
+                      level: piece.attributes.level?.data?.attributes.title,
+                      eras: piece.attributes.eras?.data?.map(era => era.attributes.name) || null
+                    }))} />
+                  </div>
                   {pieces.length > 9 && (
-                    <div className='flex flex-row flex-wrap justify-center items-center gap-3 mt-2 mb-4 w-full max-w-[1200px] md:max-w-[816px] text-center align-middle'>
-                      <Works works={pieces.slice(0, 10).map(piece => ({
-                        id: piece.id,
-                        title: piece.attributes.title,
-                        composers: piece.attributes.composers?.data?.map(composer => composer.attributes.name) || null,
-                        level: piece.attributes.level?.data?.attributes.title,
-                        eras: piece.attributes.eras?.data?.map(era => era.attributes.name) || null
-                      }))} />
-                      <div className='flex justify-center items-center gap-3 min-[340px]:gap-5 mt-6 mb-3 text-sm'>
-                        <Link
-                          href={(
-                            encodeURIComponent(handleTitleWithJustNumber(musicPublisher.attributes.name)) +
-                            (query.pageCollections ? ('?id=' + musicPublisher.id + '&pagePieces=1' + '&pageCollections=' + query.pageCollections) : ('?id=' + musicPublisher.id + '&pagePieces=1'))
-                            + '#Pieces'
+                    <div className='flex justify-center items-center gap-3 min-[340px]:gap-5 mt-6 mb-3 text-sm'>
+                      <Link
+                        href={(
+                          encodeURIComponent(handleTitleWithJustNumber(musicPublisher.attributes.name)) +
+                          (query.pageCollections ? ('?id=' + musicPublisher.id + '&pagePieces=1' + '&pageCollections=' + query.pageCollections) : ('?id=' + musicPublisher.id + '&pagePieces=1'))
+                          + '#Pieces'
+                        )}
+                      >
+                        <a
+                          title='First Page'
+                          className={cn(
+                            currentPagePieces === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
+                            'bg-pmdGrayBright px-2 py-1 rounded-md',
                           )}
                         >
-                          <a
-                            title='First Page'
-                            className={cn(
-                              currentPagePieces === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                              'bg-pmdGrayBright px-2 py-1 rounded-md',
-                            )}
-                          >
-                            First
-                          </a>
-                        </Link>
-                        <Link
-                          href={(
-                            encodeURIComponent(handleTitleWithJustNumber(musicPublisher.attributes.name)) +
-                            (query.pageCollections ? ('?id=' + musicPublisher.id + '&pagePieces=' + (currentPagePieces - 1) + '&pageCollections=' + query.pageCollections) : ('?id=' + musicPublisher.id + '&pagePieces=' + (currentPagePieces - 1)))
-                            + '#Pieces'
+                          First
+                        </a>
+                      </Link>
+                      <Link
+                        href={(
+                          encodeURIComponent(handleTitleWithJustNumber(musicPublisher.attributes.name)) +
+                          (query.pageCollections ? ('?id=' + musicPublisher.id + '&pagePieces=' + (currentPagePieces - 1) + '&pageCollections=' + query.pageCollections) : ('?id=' + musicPublisher.id + '&pagePieces=' + (currentPagePieces - 1)))
+                          + '#Pieces'
+                        )}
+                      >
+                        <a
+                          title='Previous Page'
+                          className={cn(
+                            currentPagePieces === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
+                            'bg-pmdGrayBright px-2 py-1 rounded-md',
                           )}
                         >
-                          <a
-                            title='Previous Page'
-                            className={cn(
-                              currentPagePieces === 1 ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                              'bg-pmdGrayBright px-2 py-1 rounded-md',
-                            )}
-                          >
-                            Prev
-                          </a>
-                        </Link>
-                        <span className='mx-2'>{currentPagePieces} of {totalPagesPieces}</span>
-                        <Link
-                          href={(
-                            encodeURIComponent(handleTitleWithJustNumber(musicPublisher.attributes.name)) +
-                            (query.pageCollections ? ('?id=' + musicPublisher.id + '&pagePieces=' + (currentPagePieces + 1) + '&pageCollections=' + query.pageCollections) : ('?id=' + musicPublisher.id + '&pagePieces=' + (currentPagePieces + 1)))
-                            + '#Pieces'
+                          Prev
+                        </a>
+                      </Link>
+                      <span className='mx-2'>{currentPagePieces} of {totalPagesPieces}</span>
+                      <Link
+                        href={(
+                          encodeURIComponent(handleTitleWithJustNumber(musicPublisher.attributes.name)) +
+                          (query.pageCollections ? ('?id=' + musicPublisher.id + '&pagePieces=' + (currentPagePieces + 1) + '&pageCollections=' + query.pageCollections) : ('?id=' + musicPublisher.id + '&pagePieces=' + (currentPagePieces + 1)))
+                          + '#Pieces'
+                        )}
+                      >
+                        <a
+                          title='Next Page'
+                          className={cn(
+                            currentPagePieces === totalPagesPieces ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
+                            'bg-pmdGrayBright px-2 py-1 rounded-md',
                           )}
                         >
-                          <a
-                            title='Next Page'
-                            className={cn(
-                              currentPagePieces === totalPagesPieces ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                              'bg-pmdGrayBright px-2 py-1 rounded-md',
-                            )}
-                          >
-                            Next
-                          </a>
-                        </Link>
-                        <Link
-                          href={(
-                            encodeURIComponent(handleTitleWithJustNumber(musicPublisher.attributes.name)) +
-                            (query.pageCollections ? ('?id=' + musicPublisher.id + '&pagePieces=' + totalPagesPieces + '&pageCollections=' + query.pageCollections) : ('?id=' + musicPublisher.id + '&pagePieces=' + totalPagesPieces))
-                            + '#Pieces'
+                          Next
+                        </a>
+                      </Link>
+                      <Link
+                        href={(
+                          encodeURIComponent(handleTitleWithJustNumber(musicPublisher.attributes.name)) +
+                          (query.pageCollections ? ('?id=' + musicPublisher.id + '&pagePieces=' + totalPagesPieces + '&pageCollections=' + query.pageCollections) : ('?id=' + musicPublisher.id + '&pagePieces=' + totalPagesPieces))
+                          + '#Pieces'
+                        )}
+                      >
+                        <a
+                          title='Last Page'
+                          className={cn(
+                            currentPagePieces === totalPagesPieces ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
+                            'bg-pmdGrayBright px-2 py-1 rounded-md',
                           )}
                         >
-                          <a
-                            title='Last Page'
-                            className={cn(
-                              currentPagePieces === totalPagesPieces ? 'cursor-not-allowed pointer-events-none text-pmdGray no-underline' : 'cursor-pointer',
-                              'bg-pmdGrayBright px-2 py-1 rounded-md',
-                            )}
-                          >
-                            Last
-                          </a>
-                        </Link>
-                      </div>
+                          Last
+                        </a>
+                      </Link>
                     </div>
                   )}
                 </div>

@@ -55,6 +55,7 @@ const PlusSuccessPage: NextPage<IPlusSuccessPageProps> = ({ prevUrl, sessionId }
     const accountData: TUserAttributes = JSON.parse(localStorage.getItem('accountData') || '{}');
 
     if (!accountData.id) {
+      localStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search + window.location.hash);
       router.push(`/${EUrlsPages.LOG_IN}`, undefined, { shallow: false });
     } else {
       getSubscriptionDetails();
@@ -90,21 +91,20 @@ const PlusSuccessPage: NextPage<IPlusSuccessPageProps> = ({ prevUrl, sessionId }
               <h2 className='mb-4 text-xl'>Subscription Details</h2>
               <div className='space-y-3 text-left'>
                 <p>
-                  <strong>Plan:</strong> subscription.plan
+                  <strong>Billing Interval:</strong> <span className='capitalize'>{subscription.interval}ly</span>
                 </p>
                 <p>
-                  <strong>Billing Interval:</strong> subscription.interval
+                  <strong>Start Date:</strong> {subscription.startDate}
                 </p>
                 <p>
-                  <strong>Status:</strong> <span className='capitalize'>subscription.status</span>
+                  <strong>Status:</strong> <span className='capitalize'>{subscription.status}</span>
                 </p>
                 <p>
-                  <strong>Start Date:</strong> subscription.startDate
-                </p>
+                  <Link href={`/${EUrlsPages.PLAN}`}><a title='Plan Details' className='cursor-pointer'>Plan Details</a></Link>
+                  </p>
               </div>
             </div>
             <div className='flex flex-col justify-center items-center gap-6 mb-6'>
-              <Link href={`/${EUrlsPages.PLAN}`}><a title='Plan Details' className='cursor-pointer button'>Plan Details</a></Link>
               <Link href={`/${EUrlsPages.ACCOUNT_DASHBOARD}`}><a title='Account Dashboard' className='cursor-pointer button'>Account Dashboard</a></Link>
             </div>
           </div>

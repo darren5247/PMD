@@ -98,6 +98,7 @@ const AccountSettingsPage: NextPage<IAccountSettingsPageProps> = ({ prevUrl }) =
         setTermAcceptance(accountData.acceptedTerms);
       };
     } else {
+      localStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search + window.location.hash);
       router.push(`/${EUrlsPages.LOG_IN}`, undefined, { shallow: false });
     };
   }, [router, setValue]);

@@ -12,6 +12,5 @@ export { default as ModalResetAddWorkForm } from './ModalResetAddWorkForm';
 export { default as ModalResetAddComposerForm } from './ModalResetAddComposerForm';
 export { default as ModalResetAddPublisherForm } from './ModalResetAddPublisherForm';
 export { default as ModalResetAddCollectionForm } from './ModalResetAddCollectionForm';
-export { default as ModalSearchFiltersItem } from './ModalSearchFiltersItem';
 export { default as ModalShare } from './ModalShare';
 export { default as ModalTooltip } from './ModalTooltip';

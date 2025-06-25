@@ -1,6 +1,6 @@
 {
   "name": "pmdWEB",
-  "version": "2.35.2-W_D",
+  "version": "2.40.10-W_D",
   "private": true,
   "scripts": {
     "dev": "next dev",

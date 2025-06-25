@@ -317,6 +317,9 @@ export interface IStrapiComposer {
     collections: {
       data: IStrapiCollection[] | null;
     };
+    eras: {
+      data: IStrapiEra[] | null;
+    };
   };
 };
 
@@ -409,6 +412,9 @@ export interface IStrapiPublisher {
     };
     collections: {
       data: IStrapiCollection[] | null;
+    };
+    eras: {
+      data: IStrapiEra[] | null;
     };
   };
 };
@@ -537,6 +543,9 @@ export interface IStrapiCollection {
           };
         };
       } | null;
+    };
+    eras: {
+      data: IStrapiEra[] | null;
     };
   };
 };

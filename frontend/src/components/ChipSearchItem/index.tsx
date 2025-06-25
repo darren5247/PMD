@@ -25,33 +25,28 @@ const ChipSearchItem: FC<IChipSearchItemProps> = ({
     <div
       id={id}
       className={cn(
-        'flex flex-col items-stretch bg-pmdGrayLight shadow-activeFilter w-min text-white align-middle whitespace-nowrap',
+        'flex flex-col items-stretch bg-pmdGrayLight shadow-activeFilter w-full text-white align-middle whitespace-nowrap rounded',
         className,
       )}
       {...props}
     >
-      <p className='bg-pmdGray p-1 rounded-t text-white capitalize align-middle'><strong>{label}</strong></p>
-      <div className='flex flex-row justify-center items-stretch gap-0 max-[468px]:py-1 pl-1'>
-        <div className='flex flex-row justify-center items-center gap-0'>
-          <a
-            title={decodeURIComponent(title)}
-            className='no-underline'
-          >
-            <p className='px-1 text-black'>
-              {
-              label == 'Search Term' ? (
-                decodeURIComponent(title).length > 17 ? `${decodeURIComponent(title).substring(0, 17)}...` : decodeURIComponent(title)
-              ) : (
-                decodeURIComponent(title).length > 12 ? `${decodeURIComponent(title).substring(0, 12)}...` : decodeURIComponent(title)
-              )
-              }
-            </p>
-          </a>
+      <div className='flex flex-row justify-center items-center gap-0 w-full'>
+        <div className='flex flex-col justify-center items-stretch gap-2 pb-2 border-pmdGray border-r w-full'>
+          <p className='bg-pmdGray p-1 border-pmdGray border-b rounded-tl text-white capitalize align-middle'><strong>{label}</strong></p>
+          <p className='flex-grow text-black break-words whitespace-pre-line'>
+            {decodeURIComponent(title)}
+          </p>
         </div>
         <a
-          className='flex justify-center items-stretch bg-pmdGrayLight px-1 rounded-b cursor-pointer'
+          className='flex justify-center items-stretch bg-pmdGrayLight px-1.5 py-4 cursor-pointer'
           title={label == 'Search Term' ? ('Remove Search: ' + decodeURIComponent(title)) : ('Remove Filter: ' + decodeURIComponent(title))}
           onClick={onReset}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              onReset();
+            }
+          }}
+          tabIndex={0}
         >
           <ImageNext
             className='min-w-[14px]'

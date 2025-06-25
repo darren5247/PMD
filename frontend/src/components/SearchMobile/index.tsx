@@ -30,9 +30,9 @@ const SearchMobile: FC = (): JSX.Element => {
   let breakpointCalc: string;
   const accountData: TUserAttributes = JSON.parse(localStorage.getItem('accountData') || '{}');
   if (accountData.id) {
-    breakpointCalc = '(min-width: 826px)';
+    breakpointCalc = '(min-width: 850px)';
   } else {
-    breakpointCalc = '(min-width: 786px)';
+    breakpointCalc = '(min-width: 760px)';
   };
   const isBreakpoint = useMediaQuery(breakpointCalc);
   const { uiState } = useInstantSearch<instantSearchUIState>();
@@ -44,7 +44,7 @@ const SearchMobile: FC = (): JSX.Element => {
         <div className='flex flex-col justify-center items-center w-full text-center align-middle grow'>
           <div
             className={cn(
-              'z-10 flex flex-row flex-wrap gap-x-4 mt-4 pb-4 px-4 w-full items-center justify-center border-b border-pmdGrayLight bg-white shadow-header',
+              'z-10 flex flex-row flex-wrap gap-x-4 mt-4 pb-4 px-3 w-full items-center justify-center border-b border-pmdGrayLight bg-white shadow-header',
               { 'justify-between': canRefine }
             )}
           >
@@ -103,7 +103,7 @@ const SearchMobile: FC = (): JSX.Element => {
         <div className='flex flex-col justify-center items-center w-full text-center align-middle grow'>
           <div
             className={cn(
-              'z-10 flex flex-row flex-wrap gap-x-4 mt-4 pb-4 px-4 w-full items-center justify-center border-b border-pmdGrayLight bg-white shadow-header',
+              'z-10 flex flex-row flex-wrap gap-x-4 mt-4 pb-4 px-3 w-full items-center justify-center border-b border-pmdGrayLight bg-white shadow-header',
               { 'justify-between': canRefine }
             )}
           >

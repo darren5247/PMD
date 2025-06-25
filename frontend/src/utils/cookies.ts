@@ -8,7 +8,6 @@ export const getCookie = (name: string): string | null => {
     for (let cookie of cookies) {
         const [cookieName, cookieValue] = cookie.split('=').map(c => c.trim());
         if (cookieName === name) {
-            console.log("cookie===>>>>",cookie)
             return cookieValue;
         }
     }
