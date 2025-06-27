@@ -1,12 +1,12 @@
-import { ToWords } from 'to-words';
+import { ToWords } from "to-words";
 
 const toWords = new ToWords({
-  localeCode: 'en-US',
+  localeCode: "en-US",
   converterOptions: {
     currency: false,
     ignoreDecimal: false,
-    ignoreZeroCurrency: false
-  }
+    ignoreZeroCurrency: false,
+  },
 });
 
 export const handleTitleWithJustNumber = (dirtyTitle: string) => {

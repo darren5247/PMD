@@ -1,9 +1,9 @@
-import { FC, ReactNode, useEffect, useRef, useState } from 'react';
-import cn from 'classnames';
-import ReactDOM from 'react-dom';
-import { IconCross } from '@src/common/assets/icons';
-import { useOnEventOutside } from '@src/common/hooks';
-import ImageNext from '@src/components/ImageNext';
+import { FC, ReactNode, useEffect, useRef, useState } from "react";
+import cn from "classnames";
+import ReactDOM from "react-dom";
+import { IconCross } from "@src/common/assets/icons";
+import { useOnEventOutside } from "@src/common/hooks";
+import ImageNext from "@src/components/ImageNext";
 
 interface IModalProps {
   id?: string;
@@ -15,7 +15,7 @@ interface IModalProps {
   crossClassName?: string;
   clickOutsideEnabled?: boolean;
   withoutClose?: boolean;
-};
+}
 
 const Modal: FC<IModalProps> = ({
   id,
@@ -26,7 +26,7 @@ const Modal: FC<IModalProps> = ({
   layoutClassName,
   crossClassName,
   clickOutsideEnabled = true,
-  withoutClose
+  withoutClose,
 }) => {
   const [isBrowser, setIsBrowser] = useState(false);
 
@@ -35,16 +35,16 @@ const Modal: FC<IModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       setIsBrowser(true);
       closeButtonRef.current?.focus();
     } else {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto";
       setIsBrowser(false);
     }
 
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto";
     };
   }, [isOpen]);
 
@@ -56,28 +56,31 @@ const Modal: FC<IModalProps> = ({
     clickOutsideEnabled && onClose();
   };
 
-  useOnEventOutside(ref, handleOutsideClick, 'mousedown');
+  useOnEventOutside(ref, handleOutsideClick, "mousedown");
 
   const modalContent = isOpen ? (
     <div
-      id={id ? ('modal-div-' + id) : 'modal-div'}
+      id={id ? "modal-div-" + id : "modal-div"}
       className={cn(
-        'flex h-screen p-4 items-center justify-center bg-pmdGrayDark bg-opacity-70',
-        overlayClassName
+        "flex h-screen p-4 items-center justify-center bg-pmdGrayDark bg-opacity-70",
+        overlayClassName,
       )}
     >
       <div
         ref={ref}
-        className={cn('w-max mx-auto flex flex-col justify-center align-middle relative rounded bg-white', layoutClassName)}
+        className={cn(
+          "w-max mx-auto flex flex-col justify-center align-middle relative rounded bg-white",
+          layoutClassName,
+        )}
       >
-        {!withoutClose &&
+        {!withoutClose && (
           <a
             ref={closeButtonRef}
-            id={id ? ('modal-a-' + id) : 'modal-a'}
-            title='Close'
+            id={id ? "modal-a-" + id : "modal-a"}
+            title="Close"
             onClick={handleCloseClick}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 handleCloseClick();
               }
             }}
@@ -86,12 +89,12 @@ const Modal: FC<IModalProps> = ({
             <ImageNext
               src={IconCross}
               className={cn(
-                'absolute top-[12px] right-[16px] z-[60] rounded-md cursor-pointer hover:opacity-70',
+                "absolute top-[12px] right-[16px] z-[60] rounded-md cursor-pointer hover:opacity-70",
                 crossClassName,
               )}
             />
           </a>
-        }
+        )}
         {children}
       </div>
     </div>
@@ -100,9 +103,9 @@ const Modal: FC<IModalProps> = ({
   if (isBrowser) {
     return ReactDOM.createPortal(
       modalContent,
-      document.getElementById('modal-root') as HTMLElement
+      document.getElementById("modal-root") as HTMLElement,
     );
-  };
+  }
 
   return null;
 };

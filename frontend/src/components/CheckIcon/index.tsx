@@ -4,7 +4,11 @@ interface CheckIconProps {
   size?: number;
 }
 
-export const CheckIcon = ({ className = '', fill = '#00ba00', size = 21 }: CheckIconProps) => {
+export const CheckIcon = ({
+  className = "",
+  fill = "#00ba00",
+  size = 21,
+}: CheckIconProps) => {
   return (
     <svg
       className={className}

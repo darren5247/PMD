@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import cn from 'classnames';
+import { FC } from "react";
+import cn from "classnames";
 
 interface IImagePictureProps {
   src: string;
@@ -7,7 +7,7 @@ interface IImagePictureProps {
   sizes?: string;
   unoptimized?: boolean;
   priority?: boolean;
-  loading?: 'eager' | 'lazy';
+  loading?: "eager" | "lazy";
   lazyRoot?: HTMLElement | null;
   lazyBoundary?: string;
   className?: string;
@@ -15,19 +15,19 @@ interface IImagePictureProps {
   width?: number | string;
   height?: number | string;
   style?: React.CSSProperties;
-  objectFit?: React.CSSProperties['objectFit'];
-  objectPosition?: React.CSSProperties['objectPosition'];
+  objectFit?: React.CSSProperties["objectFit"];
+  objectPosition?: React.CSSProperties["objectPosition"];
   onLoadingComplete?: (img: HTMLImageElement) => void;
-  placeholder?: 'blur' | 'empty';
+  placeholder?: "blur" | "empty";
   blurDataURL?: string;
-  layout?: 'fixed' | 'intrinsic' | 'responsive' | 'fill';
+  layout?: "fixed" | "intrinsic" | "responsive" | "fill";
 }
 
 const ImagePicture: FC<IImagePictureProps> = ({
   src,
-  alt = '',
+  alt = "",
   sizes,
-  loading = 'lazy',
+  loading = "lazy",
   className,
   width,
   height,
@@ -46,31 +46,29 @@ const ImagePicture: FC<IImagePictureProps> = ({
     }
   };
 
-  const isFillLayout = layout === 'fill';
+  const isFillLayout = layout === "fill";
 
   return (
     <picture
-      className={cn(
-        'flex items-center justify-center',
-        className,
-        { 'w-full h-full': isFillLayout }
-      )}
+      className={cn("flex items-center justify-center", className, {
+        "w-full h-full": isFillLayout,
+      })}
     >
-      {placeholder === 'blur' && blurDataURL && (
-        <source srcSet={blurDataURL} />
-      )}
+      {placeholder === "blur" && blurDataURL && <source srcSet={blurDataURL} />}
       <img
         src={src}
         alt={alt}
         sizes={sizes}
         loading={loading}
-        width={layout === 'fixed' || layout === 'intrinsic' ? width : undefined}
-        height={layout === 'fixed' || layout === 'intrinsic' ? height : undefined}
+        width={layout === "fixed" || layout === "intrinsic" ? width : undefined}
+        height={
+          layout === "fixed" || layout === "intrinsic" ? height : undefined
+        }
         style={{
           ...style,
           objectFit,
           objectPosition,
-          ...(isFillLayout ? { width: '100%', height: '100%' } : {}),
+          ...(isFillLayout ? { width: "100%", height: "100%" } : {}),
         }}
         onLoad={handleLoad}
         {...props}

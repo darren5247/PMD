@@ -1,4 +1,4 @@
-import { IUserAttributes } from './user';
+import { IUserAttributes } from "./user";
 
 export interface IStrapiPiece {
   id: number;
@@ -34,29 +34,30 @@ export interface IStrapiPiece {
     collections: {
       data: IStrapiCollection[] | null;
     };
-    sheetMusicLinks: [
-      {
-        id: number;
-        sellerName: string;
-        url: string;
-        linkText: string;
-        sellerImage: {
-          data: {
-            attributes: {
-              name: string;
-              url: string;
-              width: number;
-              height: number;
+    sheetMusicLinks:
+      | [
+          {
+            id: number;
+            sellerName: string;
+            url: string;
+            linkText: string;
+            sellerImage: {
+              data: {
+                attributes: {
+                  name: string;
+                  url: string;
+                  width: number;
+                  height: number;
+                };
+              };
             };
-          };
-        };
-      }
-    ] | null;
+          },
+        ]
+      | null;
     score: {
       data: {
         id: number;
-        attributes:
-        {
+        attributes: {
           url: string;
         };
       } | null;
@@ -199,7 +200,7 @@ export interface IStrapiPiece {
     hasTeacherDuet: boolean;
     videoEmbedCode: string;
   };
-};
+}
 
 export interface IStrapiPieceTable {
   id: number;
@@ -213,14 +214,14 @@ export interface IStrapiPieceTable {
   listWorkId?: number | undefined;
   owner?: boolean;
   user?: boolean;
-};
+}
 
 export interface IStrapiComposerTable {
   id: number;
   attributes: {
     name: string;
   };
-};
+}
 
 export interface IStrapiComposer {
   id: number;
@@ -321,7 +322,7 @@ export interface IStrapiComposer {
       data: IStrapiEra[] | null;
     };
   };
-};
+}
 
 export interface IStrapiPublisher {
   id: number;
@@ -417,7 +418,7 @@ export interface IStrapiPublisher {
       data: IStrapiEra[] | null;
     };
   };
-};
+}
 
 export interface IStrapiCollection {
   id: number;
@@ -437,47 +438,53 @@ export interface IStrapiCollection {
     urlWebsite: string;
     composed_date: string;
     composers: {
-      data: [
-        {
-          id: number;
-          attributes: {
-            name: string;
-          };
-        }
-      ] | null;
+      data:
+        | [
+            {
+              id: number;
+              attributes: {
+                name: string;
+              };
+            },
+          ]
+        | null;
     };
     published_date: string;
     publishers: {
-      data: [
-        {
-          id: number;
-          attributes: {
-            name: string;
-          };
-        }
-      ] | null;
+      data:
+        | [
+            {
+              id: number;
+              attributes: {
+                name: string;
+              };
+            },
+          ]
+        | null;
     };
     works: {
       data: IStrapiPiece[] | null;
     };
-    purchase_link: [
-      {
-        id: number;
-        sellerName: string;
-        url: string;
-        linkText: string;
-        sellerImage: {
-          data: {
-            attributes: {
-              name: string;
-              url: string;
-              width: number;
-              height: number;
+    purchase_link:
+      | [
+          {
+            id: number;
+            sellerName: string;
+            url: string;
+            linkText: string;
+            sellerImage: {
+              data: {
+                attributes: {
+                  name: string;
+                  url: string;
+                  width: number;
+                  height: number;
+                };
+              };
             };
-          };
-        };
-      }
-    ] | null;
+          },
+        ]
+      | null;
     image: {
       data: {
         attributes: {
@@ -548,7 +555,7 @@ export interface IStrapiCollection {
       data: IStrapiEra[] | null;
     };
   };
-};
+}
 
 export interface IStrapiElement {
   id: number;
@@ -588,14 +595,14 @@ export interface IStrapiElement {
       };
     };
   };
-};
+}
 
 export interface IStrapiCategory {
   id: number;
   attributes: {
     name: string;
   };
-};
+}
 
 export interface IStrapiLevel {
   id: number;
@@ -606,84 +613,84 @@ export interface IStrapiLevel {
     isFeatured: boolean;
     isSearchable: boolean;
   };
-};
+}
 
 export interface IStrapiEra {
   id: number;
   attributes: {
     name: string;
   };
-};
+}
 
 export interface IStrapiHoliday {
   id: number;
   attributes: {
     name: string;
   };
-};
+}
 
 export interface IStrapiInstrumentation {
   id: number;
   attributes: {
     name: string;
   };
-};
+}
 
 export interface IStrapiStudentAge {
   id: number;
   attributes: {
     title: string;
   };
-};
+}
 
 export interface IStrapiStudentType {
   id: number;
   attributes: {
     title: string;
   };
-};
+}
 
 export interface IStrapiTeachingTip {
   id: number;
   attributes: {
     title: string;
   };
-};
+}
 
 export interface IStrapiMood {
   id: number;
   attributes: {
     title: string;
   };
-};
+}
 
 export interface IStrapiStyle {
   id: number;
   attributes: {
     title: string;
   };
-};
+}
 
 export interface IStrapiTheme {
   id: number;
   attributes: {
     title: string;
   };
-};
+}
 
 export interface IStrapiKeySignature {
   id: number;
   attributes: {
     title: string;
   };
-};
+}
 
 export interface IStrapiTimeSignature {
   id: number;
   attributes: {
     title: string;
   };
-};
+}
 
 export interface IStrapiHomepageBanner {
   id: number;
@@ -712,11 +719,11 @@ export interface IStrapiHomepageBanner {
       };
     };
   };
-};
+}
 
 export interface IStrapiEdits {
   data: IStrapiEdit[] | null;
-};
+}
 
 export interface IStrapiEdit {
   id: number;
@@ -746,11 +753,11 @@ export interface IStrapiEdit {
       data: IStrapiComposer | null;
     };
   };
-};
+}
 
 export interface IStrapiPages {
   data: IStrapiPage[] | null;
-};
+}
 
 export interface IStrapiPage {
   id: number;
@@ -788,7 +795,7 @@ export interface IStrapiPage {
       };
     };
   };
-};
+}
 
 export interface IStrapiList {
   id: number;
@@ -808,37 +815,43 @@ export interface IStrapiList {
       } | null;
     };
     owners: {
-      data: [
-        {
-          id: number;
-          attributes: {
-            name: string;
-          };
-        }
-      ] | null;
+      data:
+        | [
+            {
+              id: number;
+              attributes: {
+                name: string;
+              };
+            },
+          ]
+        | null;
     };
     users: {
-      data: [
-        {
-          id: number;
-          attributes: {
-            name: string;
-          };
-        }
-      ] | null;
+      data:
+        | [
+            {
+              id: number;
+              attributes: {
+                name: string;
+              };
+            },
+          ]
+        | null;
     };
-    list_works: [
-      {
-        createdAt: string;
-        order: number;
-        notes: string;
-        work: {
-          data: IStrapiPieceTable[] | null;
-        };
-      }
-    ] | null;
+    list_works:
+      | [
+          {
+            createdAt: string;
+            order: number;
+            notes: string;
+            work: {
+              data: IStrapiPieceTable[] | null;
+            };
+          },
+        ]
+      | null;
   };
-};
+}
 
 export interface IStrapiListWork {
   id: number;
@@ -851,7 +864,7 @@ export interface IStrapiListWork {
       data: IStrapiPiece | null;
     };
   };
-};
+}
 
 export interface IStrapiFavorite {
   id: number;
@@ -870,4 +883,4 @@ export interface IStrapiFavorite {
       data: IStrapiPiece | null;
     };
   };
-};
+}

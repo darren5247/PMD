@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export const useMediaQuery = (query: string): boolean | null => {
   const [matches, setMatches] = useState<boolean | null>(null);
@@ -7,7 +7,7 @@ export const useMediaQuery = (query: string): boolean | null => {
     const matchMedia = window.matchMedia(query);
     function handleChange() {
       setMatches(!!matchMedia.matches);
-    };
+    }
     // Triggered at the first client-side load and if query changes
     handleChange();
 
@@ -15,15 +15,15 @@ export const useMediaQuery = (query: string): boolean | null => {
     if (matchMedia.addListener) {
       matchMedia.addListener(handleChange);
     } else {
-      matchMedia.addEventListener('change', handleChange);
-    };
+      matchMedia.addEventListener("change", handleChange);
+    }
 
     return () => {
       if (matchMedia.removeListener) {
         matchMedia.removeListener(handleChange);
       } else {
-        matchMedia.removeEventListener('change', handleChange);
-      };
+        matchMedia.removeEventListener("change", handleChange);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);

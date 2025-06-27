@@ -9,7 +9,7 @@ module.exports = {
   async confirm(ctx: { request: { body: { email: any; code: any; }; }; badRequest: (arg0: string) => any; send: (arg0: { ok: boolean; message: string; }) => void; }) {
     const { email, code } = ctx.request.body;
     if (!email || !code) {
-      throw new ApplicationError('Email and code are required');
+      throw new ApplicationError('Invalid or expired code');
     }
 
     const now = new Date();
@@ -28,7 +28,7 @@ module.exports = {
     });
 
     if (!user) {
-      throw new ApplicationError('User not found');
+      throw new ApplicationError('Account not found');
 
     }
 
@@ -48,11 +48,11 @@ module.exports = {
     });
 
     if (!user) {
-      throw new ApplicationError('User not found');
+      throw new ApplicationError('Account not found');
     }
 
     if (user.confirmed) {
-      throw new ApplicationError('Already confirmed');
+      throw new ApplicationError('Account already confirmed');
     }
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();

@@ -1,14 +1,14 @@
-import { FC } from 'react';
-import cn from 'classnames';
-import ImageNext from '../ImageNext';
-import { IconCrossWhite } from '@src/common/assets/icons';
-import { ENotificationTypes, INotification } from '@src/types';
+import { FC } from "react";
+import cn from "classnames";
+import ImageNext from "../ImageNext";
+import { IconCrossWhite } from "@src/common/assets/icons";
+import { ENotificationTypes, INotification } from "@src/types";
 
 interface INotificationProps {
   className?: string;
   onClose: () => void;
   notification: INotification;
-};
+}
 
 const Notification: FC<INotificationProps> = ({
   className,
@@ -19,55 +19,64 @@ const Notification: FC<INotificationProps> = ({
   const handleBackground = (type: string) => {
     switch (type) {
       case ENotificationTypes.ERROR:
-        return 'bg-orange-500';
+        return "bg-orange-500";
       case ENotificationTypes.SUCCESS:
-        return 'bg-green-500';
+        return "bg-green-500";
       case ENotificationTypes.WARNING:
-        return 'bg-yellow-500';
+        return "bg-yellow-500";
       case ENotificationTypes.INFO:
-        return 'bg-blue-500';
+        return "bg-blue-500";
       default:
-        return 'bg-pmdGrayDark';
-    };
+        return "bg-pmdGrayDark";
+    }
   };
 
   const timeout = () => {
-    setTimeout(
-      () => {
-        onClose();
-      }, 5000);
+    setTimeout(() => {
+      onClose();
+    }, 5000);
   };
 
   timeout();
 
   return (
     <div
-      id={'notification' + notification.message}
+      id={"notification" + notification.message}
       className={cn(
-        'relative rounded-lg text-lg pt-1 leading-[20px] tracking-thigh text-white overflow-hidden shadow-button',
+        "relative rounded-lg text-lg pt-1 leading-[20px] tracking-thigh text-white overflow-hidden shadow-button",
         handleBackground(notification.type),
         className,
       )}
       {...props}
     >
-      <div className='flex justify-between items-center gap-2 px-6 py-2 w-full text-left align-middle'>
-        <p><strong>{notification.message}</strong></p>
+      <div className="flex justify-between items-center gap-2 px-6 py-2 w-full text-left align-middle">
+        <p>
+          <strong>{notification.message}</strong>
+        </p>
         <a
-          title='Close Notification'
-          className='bg-pmdGrayDark hover:bg-pmdGray ml-4 p-4 rounded-full cursor-pointer'
+          title="Close Notification"
+          className="bg-pmdGrayDark hover:bg-pmdGray ml-4 p-4 rounded-full cursor-pointer"
           onClick={onClose}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               onClose();
             }
           }}
           tabIndex={0}
         >
-          <ImageNext className='min-w-[12px] min-h-[12px]' src={IconCrossWhite} width={12} height={12} />
+          <ImageNext
+            className="min-w-[12px] min-h-[12px]"
+            src={IconCrossWhite}
+            width={12}
+            height={12}
+          />
         </a>
       </div>
-      <div className='bg-white rounded-full h-1' style={{ animation: 'progress 5s linear' }}></div>
-      <style jsx>{`
+      <div
+        className="bg-white rounded-full h-1"
+        style={{ animation: "progress 5s linear" }}
+      ></div>
+      <style>{`
       @keyframes progress {
         from { width: 100%; }
         to { width: 0%; }

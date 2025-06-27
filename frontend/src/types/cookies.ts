@@ -1,7 +1,7 @@
 export enum ECookieCategories {
-  NECESSARY = 'necessary',
-  ANALYTICS = 'analytics',
-  MARKETING = 'marketing'
+  NECESSARY = "necessary",
+  ANALYTICS = "analytics",
+  MARKETING = "marketing",
 }
 
 export interface ICookieConsent {
@@ -16,4 +16,4 @@ export interface ICookieConsentContext {
   shouldShowBanner: boolean;
   acceptAll: () => void;
   rejectAll: () => void;
-} 
+}

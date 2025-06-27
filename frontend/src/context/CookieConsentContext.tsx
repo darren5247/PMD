@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { ICookieConsent } from '@src/types/cookies';
-import { getCookie, setCookie, deleteCookie } from '@src/utils/cookies';
+import { createContext, useContext, useState, useEffect } from "react";
+import { ICookieConsent } from "@src/types/cookies";
+import { getCookie, setCookie, deleteCookie } from "@src/utils/cookies";
 
 interface ICookieConsentContext {
   cookieConsent: ICookieConsent | null;
@@ -14,46 +14,50 @@ interface ICookieConsentContext {
 const defaultConsent: ICookieConsent = {
   necessary: true,
   analytics: true,
-  marketing: true
+  marketing: true,
 };
 
 const CookieConsentContext = createContext<ICookieConsentContext>({
   cookieConsent: null,
-  updateCookieConsent: () => { },
+  updateCookieConsent: () => {},
   shouldShowBanner: true,
-  setShouldShowBanner: () => { },
-  acceptAll: () => { },
-  rejectAll: () => { }
+  setShouldShowBanner: () => {},
+  acceptAll: () => {},
+  rejectAll: () => {},
 });
 
-export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cookieConsent, setCookieConsent] = useState<ICookieConsent | null>(null);
+export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [cookieConsent, setCookieConsent] = useState<ICookieConsent | null>(
+    null,
+  );
   const [shouldShowBanner, setShouldShowBanner] = useState<boolean>(true);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   useEffect(() => {
-    const savedConsent = getCookie('cookie-consent');
+    const savedConsent = getCookie("cookie-consent");
 
     if (savedConsent) {
       try {
         const parsedConsent = JSON.parse(savedConsent);
         if (
-          typeof parsedConsent === 'object' &&
-          'necessary' in parsedConsent &&
-          'analytics' in parsedConsent &&
-          'marketing' in parsedConsent
+          typeof parsedConsent === "object" &&
+          "necessary" in parsedConsent &&
+          "analytics" in parsedConsent &&
+          "marketing" in parsedConsent
         ) {
           setCookieConsent(parsedConsent);
           setShouldShowBanner(false);
           setIsInitialized(true);
         } else {
-          deleteCookie('cookie-consent');
+          deleteCookie("cookie-consent");
           setShouldShowBanner(true);
           setIsInitialized(true);
         }
       } catch (error) {
-        console.error('Error parsing cookie consent:', error);
-        deleteCookie('cookie-consent');
+        console.error("Error parsing cookie consent:", error);
+        deleteCookie("cookie-consent");
         setShouldShowBanner(true);
         setIsInitialized(true);
       }
@@ -65,7 +69,7 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateCookieConsent = (consent: ICookieConsent) => {
     setCookieConsent(consent);
-    setCookie('cookie-consent', JSON.stringify(consent), 365 * 24 * 60 * 60);
+    setCookie("cookie-consent", JSON.stringify(consent), 365 * 24 * 60 * 60);
     setShouldShowBanner(false);
   };
 
@@ -73,7 +77,7 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
     const fullConsent: ICookieConsent = {
       necessary: true,
       analytics: true,
-      marketing: true
+      marketing: true,
     };
     updateCookieConsent(fullConsent);
   };
@@ -95,7 +99,7 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
         shouldShowBanner,
         setShouldShowBanner,
         acceptAll,
-        rejectAll
+        rejectAll,
       }}
     >
       {children}
@@ -103,4 +107,4 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export const useCookieConsent = () => useContext(CookieConsentContext); 
+export const useCookieConsent = () => useContext(CookieConsentContext);

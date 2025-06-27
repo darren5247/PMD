@@ -1,6 +1,6 @@
-import { FC, ForwardRefExoticComponent, RefAttributes } from 'react';
-import { Control, FieldValues, FormState } from 'react-hook-form';
-import { ICheckboxProps } from '@src/components/Checkbox';
+import { FC, ForwardRefExoticComponent, RefAttributes } from "react";
+import { Control, FieldValues, FormState } from "react-hook-form";
+import { ICheckboxProps } from "@src/components/Checkbox";
 
 interface IField {
   label?: string;
@@ -8,14 +8,16 @@ interface IField {
   labelClassName?: string;
   name: string;
   component:
-  | ForwardRefExoticComponent<RefAttributes<HTMLInputElement>>
-  | ForwardRefExoticComponent<RefAttributes<HTMLTextAreaElement>>
-  | ForwardRefExoticComponent<ICheckboxProps & RefAttributes<HTMLInputElement>>
-  | React.FC
+    | ForwardRefExoticComponent<RefAttributes<HTMLInputElement>>
+    | ForwardRefExoticComponent<RefAttributes<HTMLTextAreaElement>>
+    | ForwardRefExoticComponent<
+        ICheckboxProps & RefAttributes<HTMLInputElement>
+      >
+    | React.FC;
   control: Control<FieldValues>;
   formState: FormState<FieldValues>;
   [x: string]: any;
-};
+}
 
 const Field: FC<IField> = (props) => {
   const {
@@ -41,7 +43,7 @@ const Field: FC<IField> = (props) => {
       )}
       {labelEl && labelEl}
       {<Component {...control.register(name)} {...rest} />}
-      <p className='text-pmdRed'>{error}</p>
+      <p className="text-pmdRed">{error}</p>
     </>
   );
 };

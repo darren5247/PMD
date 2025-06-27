@@ -1,27 +1,27 @@
-import type { SearchParameters, SearchResults } from 'algoliasearch-helper';
-import { ExcludeRefinementListConnector } from '@src/types';
+import type { SearchParameters, SearchResults } from "algoliasearch-helper";
+import { ExcludeRefinementListConnector } from "@src/types";
 
 export const connectExcludeRefinement: ExcludeRefinementListConnector = (
   renderFn,
-  unmountFn = () => { }
+  unmountFn = () => {},
 ) => {
   return (widgetParams) => {
     const { attribute } = widgetParams;
 
     return {
-      $$type: 'pmd.excludeRefinementList',
+      $$type: "pmd.excludeRefinementList",
       getWidgetRenderState({ results, helper }) {
         // When there are no results, return the API with default values.
         // It's helpful to render a default UI until results are available.
         if (!results) {
-          return { items: [], refine: () => { }, widgetParams };
-        };
+          return { items: [], refine: () => {}, widgetParams };
+        }
 
         // Retrieve facet values from the results for the given attribute
         // and sort them by ascending name.
         // Later on, you could let users pass a `sortBy` parameter.
         const items = results.getFacetValues(attribute, {
-          sortBy: ['name:asc']
+          sortBy: ["name:asc"],
         }) as SearchResults.FacetValue[];
 
         return {
@@ -37,7 +37,7 @@ export const connectExcludeRefinement: ExcludeRefinementListConnector = (
             ).search(),
           // Build in clearRefinement method do not clear custom widget.
           clearAll: () => helper.clearRefinements().search(),
-          widgetParams
+          widgetParams,
         };
       },
       getRenderState(renderState, renderOptions) {
@@ -51,8 +51,8 @@ export const connectExcludeRefinement: ExcludeRefinementListConnector = (
             // app so you need to register each of them separately.
             // Each `excludeRefinementList` widget's render state is stored
             // by the `attribute` it impacts.
-            [attribute]: this.getWidgetRenderState(renderOptions)
-          }
+            [attribute]: this.getWidgetRenderState(renderOptions),
+          },
         };
       },
       getWidgetUiState(uiState, { searchParameters }) {
@@ -62,36 +62,36 @@ export const connectExcludeRefinement: ExcludeRefinementListConnector = (
           ...uiState,
           ...(searchParameters.getExcludeRefinements(attribute).length
             ? {
-              excludeRefinementList: {
-                ...uiState.excludeRefinementList,
-                // You can use multiple `excludeRefinementList` widgets in a single
-                // app so you need to register each of them separately.
-                // Each `excludeRefinementList` widget's UI state is stored by
-                // the `attribute` it impacts.
-                [attribute]:
-                  searchParameters.getExcludeRefinements(attribute)
+                excludeRefinementList: {
+                  ...uiState.excludeRefinementList,
+                  // You can use multiple `excludeRefinementList` widgets in a single
+                  // app so you need to register each of them separately.
+                  // Each `excludeRefinementList` widget's UI state is stored by
+                  // the `attribute` it impacts.
+                  [attribute]:
+                    searchParameters.getExcludeRefinements(attribute),
+                },
               }
-            }
-            : {})
+            : {}),
         };
       },
       getWidgetSearchParameters(searchParameters, { uiState }) {
         const state = searchParameters.addFacet(attribute);
         const values =
           uiState.excludeRefinementList &&
-            Object.prototype.hasOwnProperty.call(
-              uiState.excludeRefinementList,
-              attribute
-            )
+          Object.prototype.hasOwnProperty.call(
+            uiState.excludeRefinementList,
+            attribute,
+          )
             ? uiState.excludeRefinementList[attribute]
-            : []
+            : [];
 
         if (Array.isArray(values)) {
           return values.reduce<SearchParameters>(
             (acc, curr) => acc.addExcludeRefinement(attribute, curr),
-            state
+            state,
           );
-        };
+        }
 
         return state;
       },
@@ -105,11 +105,11 @@ export const connectExcludeRefinement: ExcludeRefinementListConnector = (
           // necessary to build the UI.
           {
             ...this.getWidgetRenderState(initOptions),
-            instantSearchInstance
+            instantSearchInstance,
           },
           // Calling the function with `isFirstRender=true` lets you perform
           // conditional logic in the render function.
-          true
+          true,
         );
       },
       // The `render` step runs whenever new results come back from Algolia.
@@ -123,19 +123,19 @@ export const connectExcludeRefinement: ExcludeRefinementListConnector = (
           // necessary to build the UI.
           {
             ...this.getWidgetRenderState(renderOptions),
-            instantSearchInstance
+            instantSearchInstance,
           },
           // Calling the function with `isFirstRender=false` lets you perform
           // conditional logic in the render function.
-          false
-        )
+          false,
+        );
       },
       // The `dispose` step runs when removing the widget. It's useful to
       // clean up anything that the widget created during its lifetime:
       // search parameter, UI, events, etc.
       dispose() {
         unmountFn();
-      }
+      },
     };
   };
 };

@@ -1,20 +1,25 @@
-import { FC } from 'react';
-import TableRowWork from '@src/components/TableRowWork';
-import { IStrapiPieceTable } from '@src/types';
+import { FC } from "react";
+import TableRowWork from "@src/components/TableRowWork";
+import { IStrapiPieceTable } from "@src/types";
 
 interface IWorksMobileProps {
   works: IStrapiPieceTable[];
   isFavoritePage: boolean;
-  onOrderChange?: (listWorkId: number, newOrder: number) => void;
+  // onOrderChange?: (listWorkId: number, newOrder: number) => void;
   onRemoveListItem?: (listWorkId: number) => void;
   onRemoveFavoriteItem?: (favoritedWorkId: number, favoriteId: number) => void;
-};
+}
 
-const WorksMobile: FC<IWorksMobileProps> = ({ works, isFavoritePage, onOrderChange, onRemoveListItem, onRemoveFavoriteItem }): JSX.Element => {
+const WorksMobile: FC<IWorksMobileProps> = ({
+  works,
+  isFavoritePage,
+  onRemoveListItem,
+  onRemoveFavoriteItem,
+}): JSX.Element => {
   return (
     <>
-      <div className='border-pmdGrayLight border-x border-t w-full'>
-        {works.map((work) =>
+      <div className="border-pmdGrayLight border-x border-t w-full">
+        {works.map((work) => (
           <TableRowWork
             key={work.id}
             id={work.id}
@@ -24,17 +29,17 @@ const WorksMobile: FC<IWorksMobileProps> = ({ works, isFavoritePage, onOrderChan
             eras={work.eras}
             notes={work.notes}
             order={work.order}
-            listId={work.listId}
+            // listId={work.listId}
             listWorkId={work.listWorkId}
             owner={work.owner}
             user={work.user}
-            onOrderChange={onOrderChange}
+            // onOrderChange={onOrderChange}
             onRemoveListItem={onRemoveListItem}
             onRemoveFavoriteItem={onRemoveFavoriteItem}
             isFavoritePage={isFavoritePage}
             isMobile={true}
           />
-        )}
+        ))}
       </div>
     </>
   );

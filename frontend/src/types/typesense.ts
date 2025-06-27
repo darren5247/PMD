@@ -1,6 +1,6 @@
-import type { SearchResults } from 'algoliasearch-helper';
-import type { Renderer, Connector, WidgetFactory } from 'instantsearch.js';
-import { IndexUiState, UiState } from 'instantsearch.js';
+import type { SearchResults } from "algoliasearch-helper";
+import type { Renderer, Connector, WidgetFactory } from "instantsearch.js";
+import { IndexUiState, UiState } from "instantsearch.js";
 
 export interface ITypesensePiece {
   id: string;
@@ -22,8 +22,7 @@ export interface ITypesensePiece {
   has_lyrics: boolean;
   has_teacher_duet: boolean;
   collections?: string[];
-};
-
+}
 
 /*
  * Parameters send only to the widget creator function
@@ -48,7 +47,7 @@ export type ExcludeRefinementListRenderState = {
 };
 
 export type ExcludeRefinementListWidgetDescription = {
-  $$type: 'pmd.excludeRefinementList';
+  $$type: "pmd.excludeRefinementList";
   renderState: ExcludeRefinementListRenderState;
   indexRenderState: {
     excludeRefinementList: {
@@ -77,9 +76,9 @@ export type ExcludeRefinementListRendererCreator = (
   widgetParams: ExcludeRefinementListWidgetParams,
 ) => {
   render: Renderer<
-    ExcludeRefinementListWidgetDescription['renderState'],
+    ExcludeRefinementListWidgetDescription["renderState"],
     ExcludeRefinementListConnectorParams
-  >
+  >;
   dispose: () => void;
 };
 
@@ -88,7 +87,7 @@ export type ExcludeRefinementListRendererCreator = (
  */
 export type ExcludeRefinementListWidgetCreator = WidgetFactory<
   ExcludeRefinementListWidgetDescription & {
-    $$widgetType: 'pmd.excludeRefinementList'
+    $$widgetType: "pmd.excludeRefinementList";
   },
   ExcludeRefinementListConnectorParams,
   ExcludeRefinementListWidgetParams
@@ -100,7 +99,6 @@ export type ExcludeRefinementListWidgetCreator = WidgetFactory<
 //   eventName?: string,
 // ) => void
 
-
 export interface musicUIState extends IndexUiState {
   refinementList?: {
     [attribute: string]: string[];
@@ -108,8 +106,8 @@ export interface musicUIState extends IndexUiState {
   excludeRefinementList?: {
     [attribute: string]: string[];
   };
-};
+}
 
 export interface instantSearchUIState extends UiState {
   musicWorks: musicUIState;
-};
+}

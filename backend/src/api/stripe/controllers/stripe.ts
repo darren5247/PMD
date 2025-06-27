@@ -239,8 +239,15 @@ export default {
         limit: 1,
       });
 
+      const subscriptionsOther = await stripe.subscriptions.list({
+        customer: user.stripeCustomerId,
+      });
+
       if (subscriptions.data.length === 0) {
-        return ctx.send({ status: 'no_subscription' });
+        return ctx.send({
+        status: 'problem_subscription',
+        subscriptions: subscriptionsOther,
+      });
       }
 
       return ctx.send({

@@ -3,32 +3,32 @@ import React, {
   useReducer,
   Dispatch,
   FC,
-  useEffect
-} from 'react';
+  useEffect,
+} from "react";
 import {
   userReducer,
   notificationsReducer,
   tooltipReducer,
-  isLoadingReducer
-} from './reducers';
+  isLoadingReducer,
+} from "./reducers";
 import {
   TApplicationType,
   TApplicationActions,
   EUserTypes,
-  TUserAttributes
-} from '@src/types';
+  TUserAttributes,
+} from "@src/types";
 
 type InitialStateType = TApplicationType & {};
 
 interface IAppProviderProps {
   children: React.ReactNode;
-};
+}
 
 const initialState: TApplicationType = {
   user: null,
   notifications: [],
   tooltip: null,
-  isLoading: false
+  isLoading: false,
 };
 
 const AppContext = createContext<{
@@ -36,30 +36,32 @@ const AppContext = createContext<{
   dispatch: Dispatch<TApplicationActions>;
 }>({
   state: initialState,
-  dispatch: () => null
+  dispatch: () => null,
 });
 
 const mainAppReducer = (
   { user, notifications, tooltip }: InitialStateType,
-  action: TApplicationActions
+  action: TApplicationActions,
 ) => ({
   user: userReducer(user, action),
   notifications: notificationsReducer(notifications, action),
   tooltip: tooltipReducer(tooltip, action),
-  isLoading: isLoadingReducer(action)
+  isLoading: isLoadingReducer(action),
 });
 
 const AppProvider: FC<IAppProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(mainAppReducer, initialState);
 
   useEffect(() => {
-    const accountData: TUserAttributes = JSON.parse(localStorage.getItem('accountData') || '{}');
+    const accountData: TUserAttributes = JSON.parse(
+      localStorage.getItem("accountData") || "{}",
+    );
     if (accountData.id) {
       dispatch({
         type: EUserTypes.LOG_IN,
-        payload: accountData
+        payload: accountData,
       });
-    };
+    }
   }, []);
 
   return (

@@ -1,67 +1,76 @@
-import { FC } from 'react';
-import cn from 'classnames';
-import Modal from '@src/components/Modal';
-import ImageNext from '@src/components/ImageNext';
-import { IconFilterRed } from '@src/common/assets/icons';
-import { CElementCategories } from '@src/constants';
-import { EUrlsPages } from '@src/constants';
-import { useRouter } from 'next/router';
+import { FC } from "react";
+import cn from "classnames";
+import Modal from "@src/components/Modal";
+import ImageNext from "@src/components/ImageNext";
+import { IconFilterRed } from "@src/common/assets/icons";
+import { CElementCategories } from "@src/constants";
+import { EUrlsPages } from "@src/constants";
+import { useRouter } from "next/router";
 
 interface IModalElementCategoriesProps {
   currentCategory: string;
   isOpen: boolean;
   onClose: () => void;
-};
+}
 
 const ModalElementCategories: FC<IModalElementCategoriesProps> = ({
   currentCategory,
   isOpen,
-  onClose
+  onClose,
 }): JSX.Element => {
   const router = useRouter();
 
   return (
     <Modal
-      id='modalElements'
+      id="modalElements"
       onClose={onClose}
       isOpen={isOpen}
       clickOutsideEnabled={true}
-      layoutClassName='w-full max-h-full mx-[20px] max-w-[400px]'
-      crossClassName='w-10 h-10 top-2 right-2'
+      layoutClassName="w-full max-h-full mx-[20px] max-w-[400px]"
+      crossClassName="w-10 h-10 top-2 right-2"
     >
-      <div className='flex gap-2 py-4 pr-12 pl-5'>
-        <ImageNext src={IconFilterRed} height={22} width={22} className='min-w-[22px] min-h-[22px]' />
-        <p className='pt-1 text-pmdGrayDark'><strong>Choose a Category</strong></p>
+      <div className="flex gap-2 py-4 pr-12 pl-5">
+        <ImageNext
+          src={IconFilterRed}
+          height={22}
+          width={22}
+          className="min-w-[22px] min-h-[22px]"
+        />
+        <p className="pt-1 text-pmdGrayDark">
+          <strong>Choose a Category</strong>
+        </p>
       </div>
-      <div className='px-3 min-[428px]:px-4 pt-4 pb-6 border-pmdGrayLight border-t max-h-screen overflow-auto text-black scrollbar'>
+      <div className="px-3 min-[428px]:px-4 pt-4 pb-6 border-pmdGrayLight border-t max-h-screen overflow-auto text-black scrollbar">
         {isOpen && (
-          <div className='flex flex-col gap-2w-full'>
-            <ul id='filterOptions' className='flex flex-col gap-3 min-w-52 text-left whitespace-nowrap list-none'>
+          <div className="flex flex-col gap-2w-full">
+            <ul
+              id="filterOptions"
+              className="flex flex-col gap-3 min-w-52 text-left whitespace-nowrap list-none"
+            >
               {CElementCategories.map((elementCategory, index) => (
-                <li
-                  key={index}
-                  className='w-full list-none'
-                  role='menuitem'
-                >
+                <li key={index} className="w-full list-none" role="menuitem">
                   <a
                     title={elementCategory}
                     className={cn(
-                      'flex shadow-activeFilter px-3 py-2 w-full text-pmdGrayDark text-base no-underline cursor-pointer',
-                      currentCategory === elementCategory && 'shadow-pmdRed !text-pmdRed cursor-text !no-underline'
+                      "flex shadow-activeFilter px-3 py-2 w-full text-pmdGrayDark text-base no-underline cursor-pointer",
+                      currentCategory === elementCategory &&
+                        "shadow-pmdRed !text-pmdRed cursor-text !no-underline",
                     )}
                     tabIndex={0}
                     onClick={() => {
-                      currentCategory !== elementCategory && router.push(
-                        EUrlsPages.ELEMENTS +
-                        '?category=' + elementCategory
-                      );
+                      currentCategory !== elementCategory &&
+                        router.push(
+                          EUrlsPages.ELEMENTS + "?category=" + elementCategory,
+                        );
                       currentCategory !== elementCategory && onClose();
                     }}
                     onKeyDown={(e) => {
-                      if (currentCategory !== elementCategory && (e.key === 'Enter' || e.key === ' ')) {
+                      if (
+                        currentCategory !== elementCategory &&
+                        (e.key === "Enter" || e.key === " ")
+                      ) {
                         router.push(
-                          EUrlsPages.ELEMENTS +
-                          '?category=' + elementCategory
+                          EUrlsPages.ELEMENTS + "?category=" + elementCategory,
                         );
                         onClose();
                       }
@@ -75,7 +84,7 @@ const ModalElementCategories: FC<IModalElementCategoriesProps> = ({
           </div>
         )}
       </div>
-    </Modal >
+    </Modal>
     // <Modal
     //   id='modalElements'
     //   onClose={onClose}

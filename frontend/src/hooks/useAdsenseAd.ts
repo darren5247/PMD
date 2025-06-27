@@ -1,32 +1,34 @@
-import { useState } from 'react';
-import adsenseAdService from '@src/services/adsense-ad';
+import { useState } from "react";
+import adsenseAdService from "@src/services/adsense-ad";
 
 interface IAdUnit {
-    name: string;
-    slot: string;
-    format: string;
-    responsive: boolean;
-    location: string;
+  name: string;
+  slot: string;
+  format: string;
+  responsive: boolean;
+  location: string;
 }
 
 interface IAdsenseConfig {
-    publisherId: string;
-    adUnits: IAdUnit[];
+  publisherId: string;
+  adUnits: IAdUnit[];
 }
 
 const useAdsenseAd = () => {
-    const [adsenseConfig, setAdsenseConfig] = useState<IAdsenseConfig | null>(null);
+  const [adsenseConfig, setAdsenseConfig] = useState<IAdsenseConfig | null>(
+    null,
+  );
 
-    const getAdsenseConfig = async () => {
-        const response = await adsenseAdService.getAdsenseConfig();
+  const getAdsenseConfig = async () => {
+    const response = await adsenseAdService.getAdsenseConfig();
 
-        setAdsenseConfig(response.data?.attributes);
-    }
+    setAdsenseConfig(response.data?.attributes);
+  };
 
-    return {
-        getAdsenseConfig,
-        adsenseConfig,
-    }
-}
+  return {
+    getAdsenseConfig,
+    adsenseConfig,
+  };
+};
 
 export default useAdsenseAd;

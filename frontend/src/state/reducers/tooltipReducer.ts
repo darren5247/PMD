@@ -1,12 +1,12 @@
 import {
   TApplicationActions,
   ETooltipActionTypes,
-  ITooltipInfo
-} from '@src/types';
+  ITooltipInfo,
+} from "@src/types";
 
 export const tooltipReducer = (
   state: ITooltipInfo | null,
-  action: TApplicationActions
+  action: TApplicationActions,
 ) => {
   switch (action.type) {
     case ETooltipActionTypes.SET_TOOLTIP:
@@ -15,5 +15,5 @@ export const tooltipReducer = (
       return null;
     default:
       return state;
-  };
+  }
 };

@@ -1,2 +1,2 @@
-export * from './excludeConnector';
-export * from './typesenseAdapters';
+export * from "./excludeConnector";
+export * from "./typesenseAdapters";

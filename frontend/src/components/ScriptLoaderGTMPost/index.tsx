@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC } from "react";
 // import { useCookieConsent } from '@src/context/CookieConsentContext';
 
 const ScriptLoader: FC = () => {
@@ -24,15 +24,13 @@ const ScriptLoader: FC = () => {
       )} */}
       {process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID && (
         <noscript
-          dangerouslySetInnerHTML={
-            {
-              __html: `<iframe src='https://googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID}' height='0' width='0' style='display: none; visibility: hidden;' />`
-            }
-          }
+          dangerouslySetInnerHTML={{
+            __html: `<iframe src='https://googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID}' height='0' width='0' style='display: none; visibility: hidden;' />`,
+          }}
         />
       )}
     </>
   );
 };
 
-export default ScriptLoader; 
+export default ScriptLoader;
