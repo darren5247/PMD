@@ -83,12 +83,30 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const rejectAll = () => {
-    updateCookieConsent(defaultConsent);
+    const rejectedConsent: ICookieConsent = {
+      necessary: true,
+      analytics: false,
+      marketing: false,
+    };
+    updateCookieConsent(rejectedConsent);
   };
 
   // Don't render children until we've initialized the consent state
   if (!isInitialized) {
-    return null;
+    return (
+      <CookieConsentContext.Provider
+        value={{
+          cookieConsent: null,
+          updateCookieConsent: () => {},
+          shouldShowBanner: false, // Don't show banner during SSR
+          setShouldShowBanner: () => {},
+          acceptAll: () => {},
+          rejectAll: () => {},
+        }}
+      >
+        {children}
+      </CookieConsentContext.Provider>
+    );
   }
 
   return (

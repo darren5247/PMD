@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useAdsenseAd from "@src/hooks/useAdsenseAd";
+import { useCookieConsent } from "@src/context/CookieConsentContext";
 
 declare global {
   interface Window {
@@ -22,7 +23,7 @@ interface IAdsenseAdProps {
 
 const AdsenseAd: React.FC<IAdsenseAdProps> = ({ location, style }) => {
   const [adUnit, setAdUnit] = useState<IAdUnit | null>(null);
-
+  const { cookieConsent } = useCookieConsent();
   const { adsenseConfig, getAdsenseConfig } = useAdsenseAd();
 
   useEffect(() => {
@@ -39,16 +40,18 @@ const AdsenseAd: React.FC<IAdsenseAdProps> = ({ location, style }) => {
   }, [adsenseConfig, location]);
 
   useEffect(() => {
-    if (adsenseConfig && adUnit) {
+    if (adsenseConfig && adUnit && cookieConsent?.marketing) {
       try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        if (typeof window !== 'undefined' && window.adsbygoogle) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
       } catch (err) {
         console.error("Error loading Adsense ad:", err);
       }
     }
-  }, [adsenseConfig, adUnit]);
+  }, [adsenseConfig, adUnit, cookieConsent?.marketing]);
 
-  if (!adsenseConfig || !adUnit) return null;
+  if (!adsenseConfig || !adUnit || !cookieConsent?.marketing) return null;
 
   return (
     <ins

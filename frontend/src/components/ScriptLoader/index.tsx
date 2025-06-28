@@ -1,15 +1,15 @@
 import { FC } from "react";
 import Script from "next/script";
-// import { useCookieConsent } from '@src/context/CookieConsentContext';
+import { useCookieConsent } from '@src/context/CookieConsentContext';
 
 const ScriptLoader: FC = () => {
-  // const { cookieConsent } = useCookieConsent();
+  const { cookieConsent } = useCookieConsent();
 
-  // if (!cookieConsent) return null;
+  if (!cookieConsent) return null;
 
   return (
     <>
-      {/* Analytics Scripts - Google Analytics - requires analytics consent
+      {/* Analytics Scripts - Google Analytics - requires analytics consent*/}
       {cookieConsent.analytics && process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
         <>
           <Script
@@ -27,9 +27,9 @@ const ScriptLoader: FC = () => {
             `}
           </Script>
         </>
-      )} */}
+      )} 
 
-      {/* Analytics Scripts - Google Tag Manager - requires analytics consents
+      {/* Analytics Scripts - Google Tag Manager - requires analytics consents*/}
       {cookieConsent.analytics && process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID && (
         <Script id='google-tag-manager' strategy='afterInteractive'>
           {`
@@ -40,9 +40,9 @@ const ScriptLoader: FC = () => {
             })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID}');
           `}
         </Script>
-      )} */}
+      )} 
 
-      {/* Marketing Scripts - Google Adsense - requires marketing consent
+      {/* Marketing Scripts - Google Adsense - requires marketing consent*/}
       {cookieConsent.marketing && process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
         <Script
           id='adsbygoogle-init'
@@ -51,7 +51,7 @@ const ScriptLoader: FC = () => {
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID}`}
           crossOrigin='anonymous'
         />
-      )} */}
+      )} 
 
       {/* Analytics Scripts - Google Analytics - requires analytics consent */}
       {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
@@ -87,7 +87,7 @@ const ScriptLoader: FC = () => {
       )}
 
       {/* Marketing Scripts - Google Adsense - requires marketing consent */}
-      {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
+      {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && cookieConsent.marketing && (
         <Script
           id="adsbygoogle-init"
           strategy="afterInteractive"
